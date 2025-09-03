@@ -1,0 +1,46 @@
+{
+  "packages": {
+    ".": {
+      "package-name": "ttrpg-convert-cli",
+      "release-type": "maven",
+      "draft": false,
+      "prerelease": false,
+      "include-component-in-tag": false,
+      "include-v-in-tag": false,
+      "changelog-sections": [
+        {
+          "type": "feat",
+          "section": "Features"
+        },
+        {
+          "type": "fix", 
+          "section": "Bug Fixes"
+        },
+        {
+          "type": "docs",
+          "section": "Documentation"
+        },
+        {
+          "type": "refactor",
+          "section": "Code Refactoring"
+        },
+        {
+          "type": "perf",
+          "section": "Performance Improvements"
+        },
+        {
+          "type": "test",
+          "section": "Tests"
+        },
+        {
+          "type": "build",
+          "section": "Build System"
+        },
+        {
+          "type": "ci",
+          "section": "Continuous Integration"
+        }
+      ]
+    }
+  }
+}
