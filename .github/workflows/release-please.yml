@@ -1,0 +1,159 @@
+on:
+  push:
+    branches:
+      - main
+
+env:
+  JAVA_VERSION: 17
+  JAVA_DISTRO: temurin
+  NATIVE_JAVA_VERSION: 23
+  GRAALVM_DIST: graalvm-community
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+
+name: release-please
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  build-jar:
+    runs-on: ubuntu-latest
+    if: ${{ needs.release-please.outputs.release_created }}
+    needs: release-please
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRO }}
+          cache: maven
+
+      - name: Extract version without v prefix
+        id: version
+        run: |
+          VERSION=${{ needs.release-please.outputs.tag_name }}
+          VERSION=${VERSION#v}  # Remove 'v' prefix if present
+          echo "number=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build and package
+        run: |
+          mvn clean package -DskipTests -B
+          
+          # Create examples zip
+          cp -R src/main/resources/templates default
+          zip -r target/ttrpg-convert-cli-${{ needs.release-please.outputs.tag_name }}-examples.zip docs examples default
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: runnable-jar
+          path: target/ttrpg-convert-cli-${{ steps.version.outputs.number }}-runner.jar
+
+      - name: Upload examples
+        uses: actions/upload-artifact@v4
+        with:
+          name: examples-zip
+          path: target/ttrpg-convert-cli-${{ needs.release-please.outputs.tag_name }}-examples.zip
+
+  build-native:
+    if: ${{ needs.release-please.outputs.release_created }}
+    needs: [release-please, build-jar]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+          - os: windows-latest
+            platform: windows
+            arch: x64
+          - os: macos-13
+            platform: macos
+            arch: x64
+          - os: macos-latest
+            platform: macos
+            arch: arm64
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up GraalVM ${{ env.NATIVE_JAVA_VERSION }}
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: ${{ env.NATIVE_JAVA_VERSION }}
+          distribution: ${{ env.GRAALVM_DIST }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          native-image-job-reports: 'true'
+
+      - name: Build ${{ matrix.os }} native binary
+        env:
+          MAVEN_OPTS: "-Xmx1g"
+        run: ./mvnw -B -ntp package -Dnative -DskipTests -DskipITs -DskipFormat
+
+      - name: Assemble ${{ matrix.os }} archive
+        uses: jreleaser/release-action@v2
+        env:
+          JRELEASER_PROJECT_VERSION: ${{ needs.release-please.outputs.tag_name }}
+        with:
+          arguments: assemble --assembler=archive --select-current-platform --output-directory target
+
+      - name: Upload ${{ matrix.os }} archive
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
+          name: artifacts-native-${{ matrix.os }}
+          path: |
+            target/jreleaser/assemble/native-archive/archive/*.tgz
+            target/jreleaser/assemble/native-archive/archive/*.zip
+
+      - name: Upload native executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-image-${{ matrix.os }}-logs
+          path: |
+            target/jreleaser/trace.log
+            target/jreleaser/output.properties
+
+  attach-release-assets:
+    if: ${{ needs.release-please.outputs.release_created }}
+    needs: [build-jar, build-native, release-please]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -la artifacts/
+
+      - name: Attach assets to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
+          files: |
+            artifacts/runnable-jar/*
+            artifacts/examples-zip/*
+            artifacts/artifacts-native-macos-latest/*
+            artifacts/artifacts-native-windows-latest/*
+            artifacts/artifacts-native-linux-latest/*
