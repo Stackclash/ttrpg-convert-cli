@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.0 (2025-09-03)
+
+
+### Bug Fixes
+
+* also write subrace files ([4bb066a](https://github.com/Stackclash/ttrpg-convert-cli/commit/4bb066a11c9c5dee6e1940c2d34788abe4e8adca))
+
+
+### Continuous Integration
+
+* Reworking Workflows ([7669f5c](https://github.com/Stackclash/ttrpg-convert-cli/commit/7669f5c80184087477c3e876eec965e24b1fd560))
+
+## Changelog
+
 [examples/config]: examples/config
 [ex-snippets]: examples/css-snippets
 [ex-templates]: examples/templates
