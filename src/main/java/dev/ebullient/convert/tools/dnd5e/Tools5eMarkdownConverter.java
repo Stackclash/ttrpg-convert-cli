@@ -1,5 +1,6 @@
 package dev.ebullient.convert.tools.dnd5e;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,8 +79,8 @@ public class Tools5eMarkdownConverter implements MarkdownConverter {
             }
         }
 
-        writer.writeFiles(index.compendiumFilePath(), queue.baseCompendium);
-        writer.writeFiles(index.rulesFilePath(), queue.baseRules);
+        // Group files by their target base paths and write them
+        writeFilesByTargetPath(queue.baseCompendium, queue.baseRules);
 
         for (Json2QuteCommon value : queue.combinedDocs.values()) {
             append(value.type, value.buildNote(), queue.noteCompendium, queue.noteRules);
@@ -96,10 +97,77 @@ public class Tools5eMarkdownConverter implements MarkdownConverter {
             queue.noteCompendium.addAll(new BackgroundTraits2Note(index).buildNotes());
         }
 
-        writer.writeNotes(index.compendiumFilePath(), queue.noteCompendium, true);
-        writer.writeNotes(index.rulesFilePath(), queue.noteRules, false);
+        // Group notes by their target base paths and write them
+        writeNotesByTargetPath(queue.noteCompendium, queue.noteRules);
 
         return this;
+    }
+
+    /**
+     * Write files grouped by their target base paths to support per-type path configuration.
+     */
+    private void writeFilesByTargetPath(List<QuteBase> compendiumFiles, List<QuteBase> rulesFiles) {
+        // Group all files by their target base path
+        Map<Path, List<QuteBase>> filesByPath = new HashMap<>();
+
+        // Add compendium files, determining their actual target path
+        for (QuteBase file : compendiumFiles) {
+            Path targetBasePath = getTargetBasePath(file);
+            filesByPath.computeIfAbsent(targetBasePath, k -> new ArrayList<>()).add(file);
+        }
+
+        // Add rules files (they always go to rules path)
+        if (!rulesFiles.isEmpty()) {
+            filesByPath.computeIfAbsent(index.rulesFilePath(), k -> new ArrayList<>()).addAll(rulesFiles);
+        }
+
+        // Write each group of files to their target path
+        for (Map.Entry<Path, List<QuteBase>> entry : filesByPath.entrySet()) {
+            writer.writeFiles(entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
+     * Write notes grouped by their target base paths to support per-type path configuration.
+     */
+    private void writeNotesByTargetPath(List<QuteNote> compendiumNotes, List<QuteNote> rulesNotes) {
+        // Group all notes by their target base path
+        Map<Path, List<QuteNote>> notesByPath = new HashMap<>();
+
+        // Add compendium notes, determining their actual target path
+        for (QuteNote note : compendiumNotes) {
+            Path targetBasePath = getTargetBasePath(note);
+            notesByPath.computeIfAbsent(targetBasePath, k -> new ArrayList<>()).add(note);
+        }
+
+        // Add rules notes (they always go to rules path)
+        if (!rulesNotes.isEmpty()) {
+            notesByPath.computeIfAbsent(index.rulesFilePath(), k -> new ArrayList<>()).addAll(rulesNotes);
+        }
+
+        // Write each group of notes to their target path
+        for (Map.Entry<Path, List<QuteNote>> entry : notesByPath.entrySet()) {
+            writer.writeNotes(entry.getKey(), entry.getValue(),
+                    entry.getKey().equals(index.compendiumFilePath()) || !entry.getKey().equals(index.rulesFilePath()));
+        }
+    }
+
+    /**
+     * Determine the target base path for a QuteBase item, considering per-type path configuration.
+     */
+    private Path getTargetBasePath(QuteBase item) {
+        if (item.sources() instanceof Tools5eSources) {
+            Tools5eSources sources = (Tools5eSources) item.sources();
+            Tools5eIndexType type = sources.getType();
+            if (type != null && type.useCompendiumBase()) {
+                String configTypeName = type.getConfigTypeName();
+                if (configTypeName != null) {
+                    return index.getTypeFilePath(configTypeName);
+                }
+            }
+        }
+        // Default fallback: use compendium path for compendium items
+        return index.compendiumFilePath();
     }
 
     private void writeQuteBaseFiles(Tools5eIndexType type, String key, JsonNode jsonSource, WritingQueue queue) {
