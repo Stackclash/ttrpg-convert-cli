@@ -117,8 +117,18 @@ src/main/java/dev/ebullient/convert/
 - **Commands Executed**:
   1. `mvn clean test -B` - Full test suite
   2. `mvn compile -B` - Compilation verification
-- **Additional Checks**: Conventional commit format validation
+- **Additional Checks**: Conventional commit format validation for PR titles
 - **Build Cache**: Maven dependencies cached for performance
+
+### Conventional Commit Format Requirements
+- **PR titles must follow Conventional Commits format**: `type: description` or `type(scope): description`
+- **Common types**: `feat`, `fix`, `docs`, `chore`, `ci`, `test`, `refactor`
+- **Examples**:
+  - `feat: add new spell conversion feature`
+  - `fix: resolve markdown generation bug`
+  - `docs: update installation instructions`
+  - `chore: update dependencies`
+- **Validation**: Automated check runs on all PRs using `amannn/action-semantic-pull-request@v5`
 
 ### Validation Steps to Replicate CI
 ```bash
@@ -134,6 +144,11 @@ src/main/java/dev/ebullient/convert/
 - **Always run**: `./mvnw process-sources` before committing
 - **Editor support**: Uses Eclipse formatter config in `src/ide-config/`
 - **Import organization**: Specific import grouping rules enforced
+
+### Pull Request Requirements
+- **Conventional Commit Format**: PR titles must follow format `type: description` (e.g., `feat: add feature`, `fix: resolve bug`, `docs: update documentation`)
+- **Automated Validation**: CI pipeline validates PR title format using conventional commit standards
+- **Required for Merge**: PRs with non-conventional titles will fail CI checks
 
 ### CLI Usage Patterns
 - Supports both JSON and YAML configuration files
