@@ -360,20 +360,35 @@ public class Tools5eLinkifier {
         String suffix = "";
         switch (pantheon.toLowerCase()) {
             case "exandria" -> {
-                suffix = TtrpgConfig.getConfig().sourceIncluded("egw") && source.equalsIgnoreCase("egw")
-                        ? ""
-                        : ("-" + Tui.slugify(source));
+                if (TtrpgConfig.getConfig().sourceIncluded("egw") && source.equalsIgnoreCase("egw")) {
+                    suffix = "";
+                } else {
+                    suffix = TtrpgConfig.useTitleAsFilename()
+                            ? ("-" + Tui.safeFilename(source))
+                            : ("-" + Tui.slugify(source));
+                }
             }
             case "dragonlance" -> {
-                suffix = TtrpgConfig.getConfig().sourceIncluded("dsotdq") && source.equalsIgnoreCase("dsotdq")
-                        ? ""
-                        : ("-" + Tui.slugify(source));
+                if (TtrpgConfig.getConfig().sourceIncluded("dsotdq") && source.equalsIgnoreCase("dsotdq")) {
+                    suffix = "";
+                } else {
+                    suffix = TtrpgConfig.useTitleAsFilename()
+                            ? ("-" + Tui.safeFilename(source))
+                            : ("-" + Tui.slugify(source));
+                }
             }
             default -> {
                 suffix = sourceIfNotDefault(source, Tools5eIndexType.deity);
             }
         }
-        return Tui.slugify(pantheon + "-" + name) + suffix;
+        String baseFileName = pantheon + "-" + name;
+
+        // Apply filename strategy based on configuration
+        if (TtrpgConfig.useTitleAsFilename()) {
+            return Tui.safeFilename(baseFileName) + suffix;
+        } else {
+            return Tui.slugify(baseFileName) + suffix;
+        }
     }
 
     public String getClassResource(String className, String classSource) {
@@ -388,7 +403,15 @@ public class Tools5eLinkifier {
     }
 
     public String getSubclassResource(String subclass, String parentClass, String classSource, String subclassSource) {
-        String parentFile = Tui.slugify(parentClass);
+        String parentFile;
+
+        // Apply filename strategy based on configuration for parent class name
+        if (TtrpgConfig.useTitleAsFilename()) {
+            parentFile = Tui.safeFilename(parentClass);
+        } else {
+            parentFile = Tui.slugify(parentClass);
+        }
+
         String defaultSource = Tools5eIndexType.classtype.defaultOutputSource();
         if (!classSource.equalsIgnoreCase(defaultSource) &&
                 (classSource.equalsIgnoreCase("phb") || classSource.equalsIgnoreCase("xphb"))) {
@@ -399,8 +422,17 @@ public class Tools5eLinkifier {
             // its source in the file name if it's from the PHB or XPHB.
             parentFile += "-" + classSource;
         }
+
+        String subclassFileName;
+        // Apply filename strategy based on configuration for subclass name
+        if (TtrpgConfig.useTitleAsFilename()) {
+            subclassFileName = Tui.safeFilename(subclass);
+        } else {
+            subclassFileName = Tui.slugify(subclass);
+        }
+
         return fixFileName(
-                parentFile + "-" + Tui.slugify(subclass),
+                parentFile + "-" + subclassFileName,
                 subclassSource,
                 Tools5eIndexType.subclass);
     }

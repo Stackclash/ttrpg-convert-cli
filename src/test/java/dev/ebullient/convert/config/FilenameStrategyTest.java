@@ -103,4 +103,40 @@ public class FilenameStrategyTest {
         assertThat(safeName).isEqualTo("Test Spell_ Lightning Bolt");
         assertThat(safeName).doesNotContain(":");
     }
+
+    @Test
+    public void testDnd5eDeityFilenameStrategy() {
+        // Test D&D 5e deity filename generation
+        TtrpgConfig.init(Tui.instance(), Datasource.tools5e);
+        TtrpgConfig.getConfig().useTitleAsFilename = true;
+
+        // Test the safeFilename utility for deity-like names
+        String deityName = "God: Of War";
+        String pantheonName = "Greek";
+        String combinedName = pantheonName + "-" + deityName;
+
+        String safeName = Tui.safeFilename(combinedName);
+        assertThat(safeName).isEqualTo("Greek-God_ Of War");
+        assertThat(safeName).doesNotContain(":");
+        assertThat(safeName).contains(" "); // Spaces should be preserved
+    }
+
+    @Test
+    public void testDnd5eSubclassFilenameStrategy() {
+        // Test D&D 5e subclass filename generation
+        TtrpgConfig.init(Tui.instance(), Datasource.tools5e);
+        TtrpgConfig.getConfig().useTitleAsFilename = true;
+
+        // Test the safeFilename utility for subclass-like names
+        String parentClass = "Fighter";
+        String subclass = "Champion: Elite";
+
+        String parentSafe = Tui.safeFilename(parentClass);
+        String subclassSafe = Tui.safeFilename(subclass);
+
+        assertThat(parentSafe).isEqualTo("Fighter");
+        assertThat(subclassSafe).isEqualTo("Champion_ Elite");
+        assertThat(subclassSafe).doesNotContain(":");
+        assertThat(subclassSafe).contains(" "); // Spaces should be preserved
+    }
 }
