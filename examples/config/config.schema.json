@@ -119,6 +119,9 @@
     "useDiceRoller" : {
       "type" : "boolean"
     },
+    "useTitleAsFilename" : {
+      "type" : "boolean"
+    },
     "yamlStatblocks" : {
       "type" : "boolean"
     }

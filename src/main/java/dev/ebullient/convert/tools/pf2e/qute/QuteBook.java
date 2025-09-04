@@ -37,7 +37,12 @@ public class QuteBook extends Pf2eQuteNote {
 
     @Override
     public String targetFile() {
-        return this.getName();
+        // Apply filename strategy based on configuration
+        if (dev.ebullient.convert.config.TtrpgConfig.useTitleAsFilename()) {
+            return dev.ebullient.convert.io.Tui.safeFilename(this.getName());
+        } else {
+            return dev.ebullient.convert.io.Tui.slugify(this.getName());
+        }
     }
 
     @Override

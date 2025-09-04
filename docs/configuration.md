@@ -24,6 +24,7 @@ This guide introduces you to configuring data transformations using the Command 
 - [Reprint behavior](#reprint-behavior)
     - [Troubleshooting reprint behavior](#troubleshooting-reprint-behavior)
 - [Use the dice roller plugin](#use-the-dice-roller-plugin)
+- [Use note title as filename](#use-note-title-as-filename)
 - [Render with Fantasy Statblocks](#render-with-fantasy-statblocks)
 - [Tag prefix](#tag-prefix)
 - [Templates](#templates)
@@ -121,6 +122,7 @@ Here's a more comprehensive `config.json` file.
     ],
     "reprintBehavior": "newest",
     "useDiceRoller": true,
+    "useTitleAsFilename": false,
     "tagPrefix": "ttrpg-cli",
     "template": {
         "background": "examples/templates/tools5e/images-background2md.txt",
@@ -394,6 +396,35 @@ To ensure a specific resource is included, add its key to the [`include` filter]
 ## Use the dice roller plugin
 
 The CLI can generate notes that include inline dice rolls. To enable this feature, set the `useDiceRoller` attribute to `true`.
+
+## Use note title as filename
+
+By default, the CLI generates markdown files with slugified filenames (all lowercase, symbols stripped, and spaces replaced by dashes) to ensure compatibility across different operating systems and file systems. However, you can choose to use the original note title as the filename for better readability.
+
+To enable this feature, set the `useTitleAsFilename` attribute to `true`:
+
+```json
+{
+    "useTitleAsFilename": true
+}
+```
+
+When enabled:
+- Filenames will match the note title more closely
+- Spaces are preserved in filenames
+- Special characters that are invalid for filenames (`:`, `/`, `\`, `*`, `?`, `<`, `>`, `|`, `"`, `!`) are replaced with underscores (`_`)
+- The default behavior (slugified filenames) is maintained when this option is not set or set to `false`
+
+Example filename comparisons:
+
+| Note Title | Default (slugified) | With `useTitleAsFilename: true` |
+|-----------|-------------------|---------------------------|
+| "Burning Hands" | `burning-hands` | `Burning Hands` |
+| "Wizard: School of Evocation" | `wizard-school-of-evocation` | `Wizard_ School of Evocation` |
+| "Rogue/Thief Subclass" | `rogue-thief-subclass` | `Rogue_Thief Subclass` |
+
+> [!NOTE]
+> This setting affects all generated markdown files including spells, monsters, items, and other content types.
 
 ## Render with Fantasy Statblocks
 

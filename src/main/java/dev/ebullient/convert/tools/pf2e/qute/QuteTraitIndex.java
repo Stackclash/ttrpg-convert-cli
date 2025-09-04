@@ -50,7 +50,12 @@ public class QuteTraitIndex extends Pf2eQuteNote {
 
     @Override
     public String targetFile() {
-        return "traits";
+        // Apply filename strategy based on configuration
+        if (dev.ebullient.convert.config.TtrpgConfig.useTitleAsFilename()) {
+            return dev.ebullient.convert.io.Tui.safeFilename("traits");
+        } else {
+            return dev.ebullient.convert.io.Tui.slugify("traits");
+        }
     }
 
     @Override

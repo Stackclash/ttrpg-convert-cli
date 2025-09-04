@@ -82,6 +82,10 @@ public class TtrpgConfig {
         return getConfig().defaultSource.getOrDefault(type.name(), type.defaultSourceString());
     }
 
+    public static boolean useTitleAsFilename() {
+        return getConfig().useTitleAsFilename();
+    }
+
     public static String getDefaultOutputSource(String key) {
         return getConfig().defaultSource.get(key);
     }

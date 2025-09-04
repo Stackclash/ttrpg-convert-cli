@@ -59,9 +59,18 @@ public class Pf2eQuteNote extends QuteNote {
 
     @Override
     public String targetFile() {
+        String fileName;
         if (sources != null && !type.defaultSource().sameSource(sources.primarySource())) {
-            return getName() + "-" + sources.primarySource();
+            fileName = getName() + "-" + sources.primarySource();
+        } else {
+            fileName = getName();
         }
-        return getName();
+
+        // Apply filename strategy based on configuration
+        if (dev.ebullient.convert.config.TtrpgConfig.useTitleAsFilename()) {
+            return dev.ebullient.convert.io.Tui.safeFilename(fileName);
+        } else {
+            return dev.ebullient.convert.io.Tui.slugify(fileName);
+        }
     }
 }

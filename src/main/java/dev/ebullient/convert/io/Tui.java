@@ -180,6 +180,23 @@ public class Tui {
         return slugifier().slugify(s);
     }
 
+    /**
+     * Creates a safe filename from a title by replacing problematic characters
+     * without full slugification. This preserves the original case and spacing
+     * while ensuring filesystem compatibility.
+     */
+    public static String safeFilename(String title) {
+        if (title == null || title.trim().isEmpty()) {
+            return title;
+        }
+
+        // Replace filesystem-problematic characters while preserving readability
+        return title
+                .replaceAll("[<>:\"/\\\\|?*!]", "_") // Replace invalid filename chars with underscore
+                .replaceAll("\\s+", " ") // Normalize whitespace
+                .trim(); // Remove leading/trailing whitespace
+    }
+
     static final boolean picocliDebugEnabled = "DEBUG".equalsIgnoreCase(System.getProperty("picocli.trace"));
 
     Ansi ansi;

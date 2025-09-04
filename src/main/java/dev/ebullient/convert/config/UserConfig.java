@@ -47,6 +47,8 @@ public class UserConfig {
 
     String tagPrefix = "";
 
+    Boolean useTitleAsFilename = null;
+
     ImageOptions images = new ImageOptions();
 
     List<String> references() {
@@ -74,6 +76,7 @@ public class UserConfig {
         tagPrefix,
         template,
         useDiceRoller,
+        useTitleAsFilename,
         yamlStatblocks,
         ;
 

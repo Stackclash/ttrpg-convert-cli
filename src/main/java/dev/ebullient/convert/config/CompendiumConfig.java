@@ -85,6 +85,7 @@ public class CompendiumConfig {
     ImageOptions images;
     boolean allSources = false;
     DiceRoller useDiceRoller = DiceRoller.disabled;
+    boolean useTitleAsFilename = false;
     ReprintBehavior reprintBehavior = ReprintBehavior.newest;
     final Set<String> allowedSources = new HashSet<>();
     final Set<String> includedKeys = new HashSet<>();
@@ -117,6 +118,10 @@ public class CompendiumConfig {
 
     public DiceRoller useDiceRoller() {
         return useDiceRoller;
+    }
+
+    public boolean useTitleAsFilename() {
+        return useTitleAsFilename;
     }
 
     public ReprintBehavior reprintBehavior() {
@@ -348,6 +353,11 @@ public class CompendiumConfig {
             cfg.useDiceRoller = useDiceRoller;
         }
 
+        public void setUseTitleAsFilename(boolean useTitleAsFilename) {
+            CompendiumConfig cfg = TtrpgConfig.getConfig();
+            cfg.useTitleAsFilename = useTitleAsFilename;
+        }
+
         /** Parse the config file at the given path */
         public boolean readConfiguration(Path configPath) {
             try {
@@ -385,6 +395,10 @@ public class CompendiumConfig {
 
             if (input.useDiceRoller != null || input.yamlStatblocks != null) {
                 config.useDiceRoller = DiceRoller.fromAttributes(input.useDiceRoller, input.yamlStatblocks);
+            }
+
+            if (input.useTitleAsFilename != null) {
+                config.useTitleAsFilename = input.useTitleAsFilename;
             }
 
             input.include.forEach(s -> config.includedKeys.add(s.toLowerCase()));

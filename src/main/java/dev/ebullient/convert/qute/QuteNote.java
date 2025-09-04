@@ -33,7 +33,12 @@ public class QuteNote extends QuteBase {
     }
 
     public String targetFile() {
-        return name;
+        // Apply filename strategy based on configuration
+        if (dev.ebullient.convert.config.TtrpgConfig.useTitleAsFilename()) {
+            return dev.ebullient.convert.io.Tui.safeFilename(name);
+        } else {
+            return dev.ebullient.convert.io.Tui.slugify(name);
+        }
     }
 
     public String targetPath() {

@@ -99,15 +99,25 @@ public class Tools5eLinkifier {
     }
 
     private String fixFileName(String fileName, String primarySource, Tools5eIndexType type) {
+        String processedName = fileName;
+
         if (type == Tools5eIndexType.adventureData
                 || type == Tools5eIndexType.adventure
                 || type == Tools5eIndexType.book
                 || type == Tools5eIndexType.bookData
                 || type == Tools5eIndexType.tableGroup) {
-            return Tui.slugify(fileName); // file name is based on chapter, etc.
+            // file name is based on chapter, etc.
+            processedName = fileName;
+        } else {
+            processedName = fileName.replaceAll(" \\(\\*\\)", "-gv") + sourceIfNotDefault(primarySource, type);
         }
-        return Tui.slugify(fileName.replaceAll(" \\(\\*\\)", "-gv")
-                + sourceIfNotDefault(primarySource, type));
+
+        // Apply filename strategy based on configuration
+        if (dev.ebullient.convert.config.TtrpgConfig.useTitleAsFilename()) {
+            return dev.ebullient.convert.io.Tui.safeFilename(processedName);
+        } else {
+            return Tui.slugify(processedName);
+        }
     }
 
     private static String sourceIfNotDefault(String source, Tools5eIndexType type) {
