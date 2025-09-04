@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import dev.ebullient.convert.config.CompendiumConfig;
-import dev.ebullient.convert.config.TtrpgConfig;
 import dev.ebullient.convert.io.JavadocIgnore;
 import dev.ebullient.convert.io.JavadocVerbatim;
 import dev.ebullient.convert.io.Tui;
@@ -156,17 +154,9 @@ public class QuteMonster extends Tools5eQuteBase {
             Tools5eSources sources = (Tools5eSources) sources();
             Tools5eIndexType sourceType = sources.getType();
 
-            // Use the same logic as Tools5eMarkdownConverter.getTargetBasePath()
-            if (sourceType != null && sourceType.useCompendiumBase()) {
-                String configTypeName = sourceType.getConfigTypeName();
-                if (configTypeName != null) {
-                    // Check the configuration directly via TtrpgConfig instead of relying on linkifier singleton
-                    CompendiumConfig config = TtrpgConfig.getConfig();
-                    if (config.hasTypeSpecificPath(configTypeName)) {
-                        // For per-type paths, use only the monster type directory to avoid double nesting
-                        return isNpc ? "npc" : MonsterType.toDirectory(type);
-                    }
-                }
+            // If this type has a per-type path configured, return just the monster type directory
+            if (linkifier().hasTypeSpecificPath(sourceType)) {
+                return isNpc ? "npc" : MonsterType.toDirectory(type);
             }
         }
         return linkifier().monsterPath(isNpc, type);
