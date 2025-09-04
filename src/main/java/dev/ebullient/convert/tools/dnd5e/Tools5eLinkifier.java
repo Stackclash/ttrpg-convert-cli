@@ -44,9 +44,16 @@ public class Tools5eLinkifier {
     }
 
     public String vaultRoot(Tools5eIndexType type) {
-        return type.useCompendiumBase()
-                ? index.compendiumVaultRoot()
-                : index.rulesVaultRoot();
+        if (type.useCompendiumBase()) {
+            // Check for per-type path first
+            String typeName = type.getConfigTypeName();
+            if (typeName != null) {
+                return index.getTypeVaultRoot(typeName);
+            }
+            return index.compendiumVaultRoot();
+        } else {
+            return index.rulesVaultRoot();
+        }
     }
 
     public String getRelativePath(Tools5eSources sources) {

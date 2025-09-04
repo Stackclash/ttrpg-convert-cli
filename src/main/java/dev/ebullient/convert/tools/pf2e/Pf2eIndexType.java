@@ -130,11 +130,74 @@ public enum Pf2eIndexType implements IndexType, JsonNodeReader {
     }
 
     public String getVaultRoot(Pf2eIndex index) {
-        return useCompendiumBase() ? index.compendiumVaultRoot() : index.rulesVaultRoot();
+        if (useCompendiumBase()) {
+            // Check for per-type path first
+            String typeName = getConfigTypeName();
+            if (typeName != null) {
+                return index.getTypeVaultRoot(typeName);
+            }
+            return index.compendiumVaultRoot();
+        } else {
+            return index.rulesVaultRoot();
+        }
     }
 
     public Path getFilePath(Pf2eIndex index) {
-        return useCompendiumBase() ? index.compendiumFilePath() : index.rulesFilePath();
+        if (useCompendiumBase()) {
+            // Check for per-type path first
+            String typeName = getConfigTypeName();
+            if (typeName != null) {
+                return index.getTypeFilePath(typeName);
+            }
+            return index.compendiumFilePath();
+        } else {
+            return index.rulesFilePath();
+        }
+    }
+
+    /**
+     * Get the configuration type name for per-type path resolution.
+     * This determines the key that can be used in the "types" configuration.
+     *
+     * @return the type name for configuration, or null if this type doesn't support per-type paths
+     */
+    public String getConfigTypeName() {
+        return switch (this) {
+            // Main compendium content types that users might want to organize separately
+            case creature -> "creatures";
+            case spell -> "spells";
+            case item -> "items";
+            case ancestry -> "ancestries";
+            case background -> "backgrounds";
+            case classtype -> "classes";
+            case archetype -> "archetypes";
+            case feat -> "feats";
+            case hazard -> "hazards";
+            case deity -> "deities";
+            case affliction -> "afflictions";
+            case curse -> "curses";
+            case disease -> "diseases";
+            case ritual -> "rituals";
+            case companion -> "companions";
+            case familiarAbility -> "familiar-abilities";
+            case action -> "actions";
+            case trait -> "traits";
+            case domain -> "domains";
+            case ability -> "abilities";
+            case adventure -> "adventures";
+            case language -> "languages";
+            case organization -> "organizations";
+            case place -> "places";
+            case plane -> "planes";
+            case event -> "events";
+            case relicGift -> "relic-gifts";
+            case vehicle -> "vehicles";
+            case table -> "tables";
+            case variantrule -> "variant-rules";
+            case condition -> "conditions";
+            case skill -> "skills";
+            default -> null; // No per-type path support for this type
+        };
     }
 
     public String relativeRepositoryRoot(Pf2eIndex index) {

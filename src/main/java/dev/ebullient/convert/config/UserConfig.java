@@ -105,6 +105,12 @@ public class UserConfig {
     static class VaultPaths {
         String compendium;
         String rules;
+        /**
+         * Per-type paths for compendium content types.
+         * Keys are content type names (e.g., "monsters", "spells", "items").
+         * Values are the path for that content type.
+         */
+        Map<String, String> types = new HashMap<>();
     }
 
     @RegisterForReflection

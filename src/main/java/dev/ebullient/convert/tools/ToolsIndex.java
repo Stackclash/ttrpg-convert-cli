@@ -57,6 +57,26 @@ public interface ToolsIndex {
         return cfg().compendiumFilePath();
     }
 
+    /**
+     * Get vault root for a specific content type, falling back to compendium root if not specified.
+     *
+     * @param typeName the content type name (e.g., "monsters", "spells", "items")
+     * @return the vault root path for the content type
+     */
+    default String getTypeVaultRoot(String typeName) {
+        return cfg().getTypeVaultRoot(typeName);
+    }
+
+    /**
+     * Get file path for a specific content type, falling back to compendium path if not specified.
+     *
+     * @param typeName the content type name (e.g., "monsters", "spells", "items")
+     * @return the file path for the content type
+     */
+    default Path getTypeFilePath(String typeName) {
+        return cfg().getTypeFilePath(typeName);
+    }
+
     default boolean resolveSources(Path toolsPath) {
         // Check for a 'data' subdirectory
         Path data = toolsPath.resolve("data");

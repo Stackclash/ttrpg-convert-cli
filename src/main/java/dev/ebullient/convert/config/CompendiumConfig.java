@@ -197,6 +197,26 @@ public class CompendiumConfig {
         return pathAttributes().compendiumFilePath;
     }
 
+    /**
+     * Get vault root for a specific content type, falling back to compendium root if not specified.
+     *
+     * @param typeName the content type name (e.g., "monsters", "spells", "items")
+     * @return the vault root path for the content type
+     */
+    public String getTypeVaultRoot(String typeName) {
+        return pathAttributes().getTypeVaultRoot(typeName);
+    }
+
+    /**
+     * Get file path for a specific content type, falling back to compendium path if not specified.
+     *
+     * @param typeName the content type name (e.g., "monsters", "spells", "items")
+     * @return the file path for the content type
+     */
+    public Path getTypeFilePath(String typeName) {
+        return pathAttributes().getTypeFilePath(typeName);
+    }
+
     public String tagOf(String... tag) {
         return tagPrefix + Arrays.stream(tag)
                 .map(Tui::slugify)
@@ -436,6 +456,18 @@ public class CompendiumConfig {
         Path rulesFilePath = Path.of("rules/");
         Path compendiumFilePath = Path.of("compendium/");
 
+        /**
+         * Per-type vault roots for compendium content types.
+         * Keys are content type names (e.g., "monsters", "spells", "items").
+         */
+        Map<String, String> typeVaultRoots = new HashMap<>();
+
+        /**
+         * Per-type file paths for compendium content types.
+         * Keys are content type names (e.g., "monsters", "spells", "items").
+         */
+        Map<String, Path> typeFilePaths = new HashMap<>();
+
         PathAttributes() {
         }
 
@@ -457,6 +489,39 @@ public class CompendiumConfig {
                 compendiumFilePath = old.compendiumFilePath;
                 compendiumVaultRoot = old.compendiumVaultRoot;
             }
+
+            // Copy old per-type paths if they exist
+            if (old != null) {
+                typeVaultRoots.putAll(old.typeVaultRoots);
+                typeFilePaths.putAll(old.typeFilePaths);
+            }
+
+            // Process per-type paths from the new configuration
+            if (paths.types != null) {
+                for (Map.Entry<String, String> entry : paths.types.entrySet()) {
+                    String typeName = entry.getKey();
+                    String typePath = entry.getValue();
+                    if (typePath != null) {
+                        root = toRoot(typePath);
+                        typeFilePaths.put(typeName, toFilesystemRoot(root));
+                        typeVaultRoots.put(typeName, toVaultRoot(root));
+                    }
+                }
+            }
+        }
+
+        /**
+         * Get vault root for a specific type, falling back to compendium root if not specified.
+         */
+        public String getTypeVaultRoot(String typeName) {
+            return typeVaultRoots.getOrDefault(typeName, compendiumVaultRoot);
+        }
+
+        /**
+         * Get file path for a specific type, falling back to compendium path if not specified.
+         */
+        public Path getTypeFilePath(String typeName) {
+            return typeFilePaths.getOrDefault(typeName, compendiumFilePath);
         }
 
         private static String toRoot(String value) {

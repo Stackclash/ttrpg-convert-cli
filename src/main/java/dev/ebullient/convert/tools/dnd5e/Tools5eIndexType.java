@@ -701,4 +701,55 @@ public enum Tools5eIndexType implements IndexType, JsonNodeReader {
     boolean isKey(String crossRef) {
         return crossRef != null && crossRef.startsWith(name());
     }
+
+    /**
+     * Get the configuration type name for per-type path resolution.
+     * This determines the key that can be used in the "types" configuration.
+     *
+     * @return the type name for configuration, or null if this type doesn't support per-type paths
+     */
+    public String getConfigTypeName() {
+        return switch (this) {
+            // Main compendium content types that users might want to organize separately
+            case monster -> "monsters";
+            case spell -> "spells";
+            case item -> "items";
+            case itemGroup -> "item-groups";
+            case magicvariant -> "magic-variants";
+            case background -> "backgrounds";
+            case classtype -> "classes";
+            case subclass -> "subclasses";
+            case race -> "races";
+            case subrace -> "subraces";
+            case feat -> "feats";
+            case optfeature -> "optional-features";
+            case deity -> "deities";
+            case facility -> "facilities";
+            case hazard -> "hazards";
+            case trap -> "traps";
+            case object -> "objects";
+            case vehicle -> "vehicles";
+            case psionic -> "psionics";
+            case reward -> "rewards";
+            case deck -> "decks";
+            case card -> "cards";
+            case cult -> "cults";
+            case boon -> "boons";
+            case disease -> "diseases";
+            case condition -> "conditions";
+            case action -> "actions";
+            case variantrule -> "variant-rules";
+            case table -> "tables";
+            case tableGroup -> "table-groups";
+            case skill -> "skills";
+            case sense -> "senses";
+            case status -> "statuses";
+            case itemType -> "item-types";
+            case itemProperty -> "item-properties";
+            case itemMastery -> "item-mastery";
+            case language -> "languages";
+            case legendaryGroup -> "legendary-groups";
+            default -> null; // No per-type path support for this type
+        };
+    }
 }

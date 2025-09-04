@@ -68,6 +68,9 @@
         },
         "rules" : {
           "type" : "string"
+        },
+        "types" : {
+          "$ref" : "#/$defs/Map(String,String)"
         }
       }
     },
