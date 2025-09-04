@@ -1,0 +1,18 @@
+{
+  "sources": {
+    "book": ["PHB", "MM", "DMG"]
+  },
+  "paths": {
+    "compendium": "/compendium/",
+    "rules": "/rules/",
+    "types": {
+      "monsters": "/bestiary/",
+      "spells": "/magic/spells/",
+      "items": "/equipment/items/",
+      "backgrounds": "/character/backgrounds/",
+      "classes": "/character/classes/",
+      "races": "/character/races/",
+      "feats": "/character/feats/"
+    }
+  }
+}

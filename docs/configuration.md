@@ -106,7 +106,11 @@ Here's a more comprehensive `config.json` file.
         ]
     },
     "paths": {
-        "rules": "/compendium/rules/"
+        "rules": "/compendium/rules/",
+        "types": {
+            "monsters": "/bestiary/",
+            "spells": "/magic/spells/"
+        }
     },
     "excludePattern": [
         "race\\|.*\\|dmg"
@@ -132,7 +136,7 @@ Here's a more comprehensive `config.json` file.
 Additional capabilities:
 
 1. **Select input sources:** The [`sources`](#specify-content-with-sources) key is used to select included sources (full text from two adventures and a book, reference content from a slew of other official sources, and one [homebrew source](#homebrew)).
-2. **Define Vault Paths:** The [`path`](#specify-target-vault-paths-paths) sets the vault path destination for `rules` content.
+2. **Define Vault Paths:** The [`paths`](#specify-target-vault-paths-paths) sets the vault path destination for `rules` content and per-type paths for `monsters` and `spells`.
 3. **Targeted exclusion:** [`excludePattern`](#excluding-content-matching-an-excludepattern) and [`exclude`](#excluding-specific-content-with-exclude) leaves out specific content.
 4. **Targeted inclusion:** The [`include`](#including-specific-content-with-include) specifies content that is *always included*.
 5. **[Reprint behavior](#reprint-behavior):** Only the latest/newest version of a resource should be emitted (this is the default).
@@ -286,6 +290,8 @@ The `paths` key specifies vault path for generated content.
 - New directories are made if they aren't already present.
 - Paths are relative to the CLI's designated output location (`-o`), which correlates to the root of your Obsidian vault.
 
+### Basic path configuration
+
 **Example:**
 
 ```json
@@ -302,6 +308,63 @@ The `paths` key specifies vault path for generated content.
 
 - `compendium`: backgrounds, classes, items, spells, monsters, etc.
 - `rules`: conditions, weapon properties, variant rules, etc.
+
+### Per-type path configuration
+
+You can specify individual output paths for different content types using the `types` key within `paths`. This provides finer control over file organization.
+
+**Example:**
+
+```json
+  "paths": {
+    "compendium": "/compendium/",
+    "rules": "/rules/",
+    "types": {
+      "monsters": "/bestiary/",
+      "spells": "/magic/spells/",
+      "items": "/equipment/",
+      "backgrounds": "/character/backgrounds/"
+    }
+  }
+```
+
+**Supported content types:**
+
+**D&D 5th Edition:**
+- `monsters`, `spells`, `items`, `backgrounds`, `classes`, `races`, `feats`, `optional-features`
+- `deities`, `facilities`, `hazards`, `traps`, `objects`, `vehicles`, `psionics`, `rewards`
+- `decks`, `cards`, `cults`, `boons`, `diseases`, `conditions`, `actions`, `variant-rules`
+- `tables`, `skills`, `senses`, `statuses`, `item-types`, `item-properties`, `languages`
+
+**Pathfinder 2nd Edition:**
+- `creatures`, `spells`, `items`, `ancestries`, `backgrounds`, `classes`, `archetypes`, `feats`
+- `hazards`, `deities`, `afflictions`, `curses`, `diseases`, `rituals`, `companions`
+- `familiar-abilities`, `actions`, `traits`, `domains`, `abilities`, `adventures`
+- `languages`, `organizations`, `places`, `planes`, `events`, `relic-gifts`, `vehicles`
+
+**Behavior:**
+- If a content type has a specific path configured, files of that type are written to the specified directory
+- If no specific path is configured for a content type, files are written to the default `compendium` directory
+- Rules content (conditions, weapon properties, etc.) always uses the `rules` path regardless of per-type configuration
+- All existing configurations continue to work without modification
+
+**Mixed configuration example:**
+
+```json
+  "paths": {
+    "compendium": "/compendium/",
+    "types": {
+      "monsters": "/bestiary/",
+      "spells": "/magic/"
+    }
+  }
+```
+
+In this example:
+- Monsters are written to `/bestiary/`
+- Spells are written to `/magic/`
+- All other compendium content (items, backgrounds, etc.) goes to `/compendium/`
+- Rules content uses the default `/rules/` path
 
 > [!WARNING]
 > Do not reorganize or edit the generated content. Tuck generated content away in your vault and use it as read-only reference material. It should be cheap and easy to re-run the tool (add more content, errata, etc.). See [Recommendations](../README.md#recommendations-for-using-the-cli) for more information.
