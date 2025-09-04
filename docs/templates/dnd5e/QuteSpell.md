@@ -6,7 +6,7 @@ Extension of [Tools5eQuteBase](Tools5eQuteBase.md).
 
 ## Attributes
 
-[backgrounds](#backgrounds), [books](#books), [classList](#classlist), [classes](#classes), [components](#components), [duration](#duration), [feats](#feats), [fluffImages](#fluffimages), [hasImages](#hasimages), [hasMoreImages](#hasmoreimages), [hasSections](#hassections), [labeledSource](#labeledsource), [level](#level), [name](#name), [optionalfeatures](#optionalfeatures), [races](#races), [range](#range), [references](#references), [reprintOf](#reprintof), [ritual](#ritual), [school](#school), [showAllImages](#showallimages), [showMoreImages](#showmoreimages), [showPortraitImage](#showportraitimage), [source](#source), [sourceAndPage](#sourceandpage), [sourcesWithFootnote](#sourceswithfootnote), [tags](#tags), [text](#text), [time](#time), [vaultPath](#vaultpath)
+[backgrounds](#backgrounds), [books](#books), [classList](#classlist), [classes](#classes), [components](#components), [damageType](#damagetype), [duration](#duration), [feats](#feats), [fluffImages](#fluffimages), [hasImages](#hasimages), [hasMoreImages](#hasmoreimages), [hasSections](#hassections), [labeledSource](#labeledsource), [level](#level), [material](#material), [name](#name), [optionalfeatures](#optionalfeatures), [races](#races), [range](#range), [references](#references), [reprintOf](#reprintof), [ritual](#ritual), [savingThrows](#savingthrows), [school](#school), [showAllImages](#showallimages), [showMoreImages](#showmoreimages), [showPortraitImage](#showportraitimage), [somatic](#somatic), [source](#source), [sourceAndPage](#sourceandpage), [sourcesWithFootnote](#sourceswithfootnote), [tags](#tags), [text](#text), [time](#time), [vaultPath](#vaultpath), [verbal](#verbal)
 
 ### backgrounds
 
@@ -27,6 +27,10 @@ String: rendered list of links to classes that can use this spell. May be incomp
 ### components
 
 Formatted: spell components
+
+### damageType
+
+List of damage types the spell inflicts (empty if none)
 
 ### duration
 
@@ -60,6 +64,10 @@ Formatted string describing the content's source(s): `_Source: <sources>_`
 
 Spell level
 
+### material
+
+String describing the material components, if present (empty if none)
+
 ### name
 
 Note name
@@ -88,6 +96,10 @@ List of content superceded by this note (as [Reprinted](../Reprinted.md))
 
 true for ritual spells
 
+### savingThrows
+
+List of applicable saving throws for the spell (empty if none)
+
 ### school
 
 Spell school
@@ -106,6 +118,10 @@ If there is more than one, they will be displayed in a gallery.
 
 Return an embedded wikilink to the first image
 Will have the "right" anchor tag.
+
+### somatic
+
+true if the spell requires a somatic component
 
 ### source
 
@@ -138,3 +154,7 @@ Formatted: casting time
 ### vaultPath
 
 Path to this note in the vault
+
+### verbal
+
+true if the spell requires a verbal component
