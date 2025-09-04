@@ -69,6 +69,11 @@ public class Json2QuteSpell extends Json2QuteCommon {
                 spellCastingTime(),
                 spellRange(),
                 spellComponents(),
+                hasVerbalComponent(),
+                hasSomaticComponent(),
+                getMaterialComponentText(),
+                getDamageTypes(),
+                getSavingThrows(),
                 spellDuration(),
                 referenceLinks,
                 getFluffImages(Tools5eIndexType.spellFluff),
@@ -115,6 +120,56 @@ public class Json2QuteSpell extends Json2QuteCommon {
                 source.isObject()
                         ? SpellFields.text.replaceTextFrom(source, this)
                         : replaceText(source.asText()));
+    }
+
+    boolean hasVerbalComponent() {
+        JsonNode components = SpellFields.components.getFrom(rootNode);
+        return components != null && booleanOrDefault(components, "v", false);
+    }
+
+    boolean hasSomaticComponent() {
+        JsonNode components = SpellFields.components.getFrom(rootNode);
+        return components != null && booleanOrDefault(components, "s", false);
+    }
+
+    String getMaterialComponentText() {
+        JsonNode components = SpellFields.components.getFrom(rootNode);
+        if (components == null) {
+            return "";
+        }
+        JsonNode materialNode = components.get("m");
+        if (materialNode == null) {
+            return "";
+        }
+        return materialNode.isObject()
+                ? SpellFields.text.replaceTextFrom(materialNode, this)
+                : replaceText(materialNode.asText());
+    }
+
+    List<String> getDamageTypes() {
+        JsonNode damageInflict = SpellFields.damageInflict.getFrom(rootNode);
+        if (damageInflict == null || !damageInflict.isArray()) {
+            return List.of();
+        }
+        List<String> result = new ArrayList<>();
+        for (JsonNode node : damageInflict) {
+            String damageType = node.asText();
+            result.add(damageTypeToFull(damageType));
+        }
+        return result;
+    }
+
+    List<String> getSavingThrows() {
+        JsonNode savingThrow = SpellFields.savingThrow.getFrom(rootNode);
+        if (savingThrow == null || !savingThrow.isArray()) {
+            return List.of();
+        }
+        List<String> result = new ArrayList<>();
+        for (JsonNode node : savingThrow) {
+            String saveType = node.asText();
+            result.add(uppercaseFirst(saveType.toLowerCase()));
+        }
+        return result;
     }
 
     String spellDuration() {
@@ -220,6 +275,7 @@ public class Json2QuteSpell extends Json2QuteCommon {
         classSource,
         classes,
         components,
+        damageInflict,
         distance,
         duration,
         entriesHigherLevel,
@@ -228,6 +284,7 @@ public class Json2QuteSpell extends Json2QuteCommon {
         number,
         range,
         ritual,
+        savingThrow,
         school,
         self,
         sight,

@@ -29,6 +29,16 @@ public class QuteSpell extends Tools5eQuteBase {
     public final String range;
     /** Formatted: spell components */
     public final String components;
+    /** true if the spell requires a verbal component */
+    public final boolean verbal;
+    /** true if the spell requires a somatic component */
+    public final boolean somatic;
+    /** String describing the material components, if present (empty if none) */
+    public final String material;
+    /** List of damage types the spell inflicts (empty if none) */
+    public final List<String> damageType;
+    /** List of applicable saving throws for the spell (empty if none) */
+    public final List<String> savingThrows;
     /** Formatted: spell range */
     public final String duration;
     /** String: rendered list of links to classes that grant access to this spell. May be incomplete or empty. */
@@ -46,7 +56,8 @@ public class QuteSpell extends Tools5eQuteBase {
 
     public QuteSpell(Tools5eSources sources, String name, String source, String level,
             String school, boolean ritual, String time, String range,
-            String components, String duration,
+            String components, boolean verbal, boolean somatic, String material,
+            List<String> damageType, List<String> savingThrows, String duration,
             Collection<String> references, List<ImageRef> images, String text, Tags tags) {
         super(sources, name, source, images, text, tags);
 
@@ -56,6 +67,11 @@ public class QuteSpell extends Tools5eQuteBase {
         this.time = time;
         this.range = range;
         this.components = components;
+        this.verbal = verbal;
+        this.somatic = somatic;
+        this.material = material;
+        this.damageType = damageType != null ? List.copyOf(damageType) : List.of();
+        this.savingThrows = savingThrows != null ? List.copyOf(savingThrows) : List.of();
         this.duration = duration;
         this.references = references;
         this.backgrounds = references.stream()
