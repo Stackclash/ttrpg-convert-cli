@@ -161,7 +161,7 @@ public class Tools5eMarkdownConverter implements MarkdownConverter {
             Tools5eIndexType type = sources.getType();
             if (type != null && type.useCompendiumBase()) {
                 String configTypeName = type.getConfigTypeName();
-                if (configTypeName != null) {
+                if (configTypeName != null && index.hasTypeSpecificPath(configTypeName)) {
                     return index.getTypeFilePath(configTypeName);
                 }
             }

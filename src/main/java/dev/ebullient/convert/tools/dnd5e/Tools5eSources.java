@@ -471,12 +471,35 @@ public class Tools5eSources extends CompendiumSources {
 
     public ImageRef buildTokenImageRef(Tools5eIndex index, String sourcePath, Path target, boolean useCompendium) {
         String key = sourcePath.toString();
-        ImageRef imageRef = new ImageRef.Builder()
+        ImageRef.Builder builder = new ImageRef.Builder()
                 .setRelativePath(target)
-                .setInternalPath(sourcePath)
-                .setRootFilepath(useCompendium ? index.compendiumFilePath() : index.rulesFilePath())
-                .setVaultRoot(useCompendium ? index.compendiumVaultRoot() : index.rulesVaultRoot())
-                .build(imageSourceToRef.get(key));
+                .setInternalPath(sourcePath);
+
+        if (useCompendium) {
+            // Check if this type has a per-type path configured
+            if (type != null && type.useCompendiumBase()) {
+                String configTypeName = type.getConfigTypeName();
+                if (configTypeName != null && index.hasTypeSpecificPath(configTypeName)) {
+                    // Use the type-specific paths instead of compendium paths
+                    builder.setRootFilepath(index.getTypeFilePath(configTypeName))
+                            .setVaultRoot(index.getTypeVaultRoot(configTypeName));
+                } else {
+                    // Use default compendium paths
+                    builder.setRootFilepath(index.compendiumFilePath())
+                            .setVaultRoot(index.compendiumVaultRoot());
+                }
+            } else {
+                // Use default compendium paths
+                builder.setRootFilepath(index.compendiumFilePath())
+                        .setVaultRoot(index.compendiumVaultRoot());
+            }
+        } else {
+            // Use rules paths
+            builder.setRootFilepath(index.rulesFilePath())
+                    .setVaultRoot(index.rulesVaultRoot());
+        }
+
+        ImageRef imageRef = builder.build(imageSourceToRef.get(key));
         imageSourceToRef.putIfAbsent(key, imageRef);
         return imageRef;
     }

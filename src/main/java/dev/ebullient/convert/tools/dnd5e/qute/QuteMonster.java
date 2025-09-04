@@ -24,6 +24,7 @@ import dev.ebullient.convert.qute.ImageRef;
 import dev.ebullient.convert.qute.NamedText;
 import dev.ebullient.convert.qute.QuteUtil;
 import dev.ebullient.convert.tools.Tags;
+import dev.ebullient.convert.tools.dnd5e.Json2QuteMonster.MonsterType;
 import dev.ebullient.convert.tools.dnd5e.Tools5eIndex;
 import dev.ebullient.convert.tools.dnd5e.Tools5eIndexType;
 import dev.ebullient.convert.tools.dnd5e.Tools5eSources;
@@ -153,8 +154,8 @@ public class QuteMonster extends Tools5eQuteBase {
             Tools5eSources sources = (Tools5eSources) sources();
             Tools5eIndexType sourceType = sources.getType();
             if (linkifier().hasTypeSpecificPath(sourceType)) {
-                // If per-type path is configured, use relative path from that base
-                return linkifier().monsterPath(isNpc, type).replace("bestiary/", "");
+                // For per-type paths, use just the monster type directory
+                return isNpc ? "npc" : MonsterType.toDirectory(type);
             }
         }
         return linkifier().monsterPath(isNpc, type);
