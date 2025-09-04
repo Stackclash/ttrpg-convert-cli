@@ -156,11 +156,28 @@ public enum Pf2eIndexType implements IndexType, JsonNodeReader {
     }
 
     /**
+     * Check if this type has a per-type path configured.
+     *
+     * @param index the Pf2e index to check configuration against
+     * @return true if the type has a custom path, false if it uses the default
+     */
+    public boolean hasTypeSpecificPath(Pf2eIndex index) {
+        if (useCompendiumBase()) {
+            String typeName = getConfigTypeName();
+            if (typeName != null) {
+                return index.hasTypeSpecificPath(typeName);
+            }
+        }
+        return false;
+    }
+
+    /**
      * Get the configuration type name for per-type path resolution.
      * This determines the key that can be used in the "types" configuration.
      *
      * @return the type name for configuration, or null if this type doesn't support per-type paths
      */
+
     public String getConfigTypeName() {
         return switch (this) {
             // Main compendium content types that users might want to organize separately

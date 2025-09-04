@@ -524,9 +524,31 @@ public class Tools5eSources extends CompendiumSources {
         ImageRef.Builder builder = new ImageRef.Builder()
                 .setWidth(mediaHref.width)
                 .setTitle(index.replaceText(altText))
-                .setRelativePath(target)
-                .setRootFilepath(useCompendium ? index.compendiumFilePath() : index.rulesFilePath())
-                .setVaultRoot(useCompendium ? index.compendiumVaultRoot() : index.rulesVaultRoot());
+                .setRelativePath(target);
+
+        if (useCompendium) {
+            // Check if this type has a per-type path configured
+            if (type != null && type.useCompendiumBase()) {
+                String configTypeName = type.getConfigTypeName();
+                if (configTypeName != null && index.hasTypeSpecificPath(configTypeName)) {
+                    // Use the type-specific paths instead of compendium paths
+                    builder.setRootFilepath(index.getTypeFilePath(configTypeName))
+                            .setVaultRoot(index.getTypeVaultRoot(configTypeName));
+                } else {
+                    // Use default compendium paths
+                    builder.setRootFilepath(index.compendiumFilePath())
+                            .setVaultRoot(index.compendiumVaultRoot());
+                }
+            } else {
+                // Use default compendium paths
+                builder.setRootFilepath(index.compendiumFilePath())
+                        .setVaultRoot(index.compendiumVaultRoot());
+            }
+        } else {
+            // Use rules paths
+            builder.setRootFilepath(index.rulesFilePath())
+                    .setVaultRoot(index.rulesVaultRoot());
+        }
 
         if (mediaHref.href.path == null) {
             builder.setUrl(mediaHref.href.url);

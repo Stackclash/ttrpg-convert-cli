@@ -77,6 +77,16 @@ public interface ToolsIndex {
         return cfg().getTypeFilePath(typeName);
     }
 
+    /**
+     * Check if a specific type has a custom path configured.
+     *
+     * @param typeName the content type name (e.g., "monsters", "spells", "items")
+     * @return true if the type has a custom path, false if it uses the default compendium path
+     */
+    default boolean hasTypeSpecificPath(String typeName) {
+        return cfg().hasTypeSpecificPath(typeName);
+    }
+
     default boolean resolveSources(Path toolsPath) {
         // Check for a 'data' subdirectory
         Path data = toolsPath.resolve("data");

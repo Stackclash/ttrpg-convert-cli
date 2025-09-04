@@ -217,6 +217,16 @@ public class CompendiumConfig {
         return pathAttributes().getTypeFilePath(typeName);
     }
 
+    /**
+     * Check if a specific type has a custom path configured.
+     *
+     * @param typeName the content type name (e.g., "monsters", "spells", "items")
+     * @return true if the type has a custom path, false if it uses the default compendium path
+     */
+    public boolean hasTypeSpecificPath(String typeName) {
+        return pathAttributes().hasTypeSpecificPath(typeName);
+    }
+
     public String tagOf(String... tag) {
         return tagPrefix + Arrays.stream(tag)
                 .map(Tui::slugify)
@@ -522,6 +532,13 @@ public class CompendiumConfig {
          */
         public Path getTypeFilePath(String typeName) {
             return typeFilePaths.getOrDefault(typeName, compendiumFilePath);
+        }
+
+        /**
+         * Check if a specific type has a custom path configured.
+         */
+        public boolean hasTypeSpecificPath(String typeName) {
+            return typeFilePaths.containsKey(typeName);
         }
 
         private static String toRoot(String value) {

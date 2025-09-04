@@ -8,6 +8,7 @@ import dev.ebullient.convert.qute.ImageRef;
 import dev.ebullient.convert.qute.QuteBase;
 import dev.ebullient.convert.tools.CompendiumSources;
 import dev.ebullient.convert.tools.Tags;
+import dev.ebullient.convert.tools.dnd5e.Tools5eIndexType;
 import dev.ebullient.convert.tools.dnd5e.Tools5eLinkifier;
 import dev.ebullient.convert.tools.dnd5e.Tools5eSources;
 import io.quarkus.qute.TemplateData;
@@ -121,7 +122,15 @@ public class Tools5eQuteBase extends QuteBase {
             return targetPath;
         }
         if (sources() != null) {
-            return linkifier().getRelativePath(sources());
+            Tools5eSources sources = (Tools5eSources) sources();
+            Tools5eIndexType type = sources.getType();
+
+            // If this type has a per-type path configured, return "." to avoid double nesting
+            if (linkifier().hasTypeSpecificPath(type)) {
+                return ".";
+            }
+
+            return linkifier().getRelativePath(sources);
         }
         return ".";
     }

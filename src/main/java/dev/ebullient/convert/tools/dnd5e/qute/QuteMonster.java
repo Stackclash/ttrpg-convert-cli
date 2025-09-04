@@ -148,6 +148,15 @@ public class QuteMonster extends Tools5eQuteBase {
 
     @Override
     public String targetPath() {
+        // Check if monsters have a per-type path configured
+        if (sources() instanceof Tools5eSources) {
+            Tools5eSources sources = (Tools5eSources) sources();
+            Tools5eIndexType sourceType = sources.getType();
+            if (linkifier().hasTypeSpecificPath(sourceType)) {
+                // If per-type path is configured, use relative path from that base
+                return linkifier().monsterPath(isNpc, type).replace("bestiary/", "");
+            }
+        }
         return linkifier().monsterPath(isNpc, type);
     }
 

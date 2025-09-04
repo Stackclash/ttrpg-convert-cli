@@ -85,6 +85,16 @@ public interface JsonTextReplacement extends JsonTextConverter<Tools5eIndexType>
 
     default String getImagePath() {
         Tools5eIndexType type = getSources().getType();
+
+        // Check if this type has a per-type path configured
+        if (type != null && type.useCompendiumBase()) {
+            String configTypeName = type.getConfigTypeName();
+            if (configTypeName != null && index().hasTypeSpecificPath(configTypeName)) {
+                // For per-type paths, use current directory relative to the type-specific base
+                return ".";
+            }
+        }
+
         return linkifier().getRelativePath(type);
     }
 

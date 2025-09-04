@@ -86,6 +86,22 @@ public class Tools5eLinkifier {
         };
     }
 
+    /**
+     * Check if a specific type has a custom path configured.
+     *
+     * @param type the index type
+     * @return true if the type has a custom path, false if it uses the default
+     */
+    public boolean hasTypeSpecificPath(Tools5eIndexType type) {
+        if (type != null && type.useCompendiumBase()) {
+            String configTypeName = type.getConfigTypeName();
+            if (configTypeName != null) {
+                return index.hasTypeSpecificPath(configTypeName);
+            }
+        }
+        return false;
+    }
+
     public String getTargetFileName(String name, Tools5eSources sources) {
         Tools5eIndexType type = sources.getType();
         JsonNode node = sources.findNode();
