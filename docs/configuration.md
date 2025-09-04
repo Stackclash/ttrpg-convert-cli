@@ -331,10 +331,10 @@ You can specify individual output paths for different content types using the `t
 **Supported content types:**
 
 **D&D 5th Edition:**
-- `monsters`, `spells`, `items`, `backgrounds`, `classes`, `races`, `feats`, `optional-features`
+- `monsters`, `spells`, `items`, `item-groups`, `magic-variants`, `backgrounds`, `classes`, `subclasses`, `races`, `subraces`, `feats`, `optional-features`
 - `deities`, `facilities`, `hazards`, `traps`, `objects`, `vehicles`, `psionics`, `rewards`
 - `decks`, `cards`, `cults`, `boons`, `diseases`, `conditions`, `actions`, `variant-rules`
-- `tables`, `skills`, `senses`, `statuses`, `item-types`, `item-properties`, `languages`
+- `tables`, `table-groups`, `skills`, `senses`, `statuses`, `item-types`, `item-properties`, `item-mastery`, `languages`, `legendary-groups`
 
 **Pathfinder 2nd Edition:**
 - `creatures`, `spells`, `items`, `ancestries`, `backgrounds`, `classes`, `archetypes`, `feats`

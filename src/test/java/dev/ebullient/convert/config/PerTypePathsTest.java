@@ -93,6 +93,12 @@ public class PerTypePathsTest {
         // Verify fallback for unspecified types
         assertEquals("/compendium/", config.getTypeVaultRoot("items"));
         assertEquals(Path.of("compendium/"), config.getTypeFilePath("items"));
+
+        // Test subclasses and subraces specifically
+        assertEquals("/compendium/", config.getTypeVaultRoot("subclasses"));
+        assertEquals("/compendium/", config.getTypeVaultRoot("subraces"));
+        assertEquals(Path.of("compendium/"), config.getTypeFilePath("subclasses"));
+        assertEquals(Path.of("compendium/"), config.getTypeFilePath("subraces"));
     }
 
     @Test
