@@ -154,7 +154,7 @@ public class QuteMonster extends Tools5eQuteBase {
             Tools5eSources sources = (Tools5eSources) sources();
             Tools5eIndexType sourceType = sources.getType();
             if (linkifier().hasTypeSpecificPath(sourceType)) {
-                // For per-type paths, use just the monster type directory
+                // For per-type paths, use only the monster type directory to avoid double nesting
                 return isNpc ? "npc" : MonsterType.toDirectory(type);
             }
         }
