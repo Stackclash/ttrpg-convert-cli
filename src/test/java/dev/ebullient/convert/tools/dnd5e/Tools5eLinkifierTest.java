@@ -46,6 +46,42 @@ public class Tools5eLinkifierTest {
     }
 
     @Test
+    public void testSubraceSubclassCustomPaths() throws Exception {
+        TtrpgConfig.init(tui, Datasource.tools5e);
+        Configurator test = new Configurator(tui);
+        Tools5eLinkifier linkifier = Tools5eLinkifier.instance();
+        linkifier.reset(); // Ensure fresh state
+
+        tui.readFile(TestUtils.TEST_RESOURCES.resolve("subrace-subclass-paths.json"), java.util.List.of(), (f, node) -> {
+            test.readConfigIfPresent(node);
+
+            // Test that separate paths are used for subraces and subclasses
+            assertThat(linkifier.getRelativePath(Tools5eIndexType.race)).isEqualTo("character/races");
+            assertThat(linkifier.getRelativePath(Tools5eIndexType.subrace)).isEqualTo("character/subraces");
+            assertThat(linkifier.getRelativePath(Tools5eIndexType.classtype)).isEqualTo("character/classes");
+            assertThat(linkifier.getRelativePath(Tools5eIndexType.subclass)).isEqualTo("character/subclasses");
+        });
+    }
+
+    @Test
+    public void testSubraceSubclassFallbackPaths() throws Exception {
+        TtrpgConfig.init(tui, Datasource.tools5e);
+        Configurator test = new Configurator(tui);
+        Tools5eLinkifier linkifier = Tools5eLinkifier.instance();
+        linkifier.reset(); // Ensure fresh state
+
+        tui.readFile(TestUtils.TEST_RESOURCES.resolve("fallback-paths.json"), java.util.List.of(), (f, node) -> {
+            test.readConfigIfPresent(node);
+
+            // Test that subraces and subclasses fall back to parent type paths when not specifically configured
+            assertThat(linkifier.getRelativePath(Tools5eIndexType.race)).isEqualTo("character/races");
+            assertThat(linkifier.getRelativePath(Tools5eIndexType.subrace)).isEqualTo("character/races");
+            assertThat(linkifier.getRelativePath(Tools5eIndexType.classtype)).isEqualTo("character/classes");
+            assertThat(linkifier.getRelativePath(Tools5eIndexType.subclass)).isEqualTo("character/classes");
+        });
+    }
+
+    @Test
     public void testDefaultPathsWhenNoCustomConfig() throws Exception {
         TtrpgConfig.init(tui, Datasource.tools5e);
         Configurator test = new Configurator(tui);

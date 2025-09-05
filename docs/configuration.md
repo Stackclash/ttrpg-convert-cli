@@ -326,7 +326,8 @@ For **D&D 5th Edition:**
 - `adventures` - Adventure content
 - `backgrounds` - Character backgrounds  
 - `books` - Book content
-- `classes` - Character classes and subclasses
+- `classes` - Character classes
+- `subclasses` - Character subclasses
 - `conditions` - Status conditions
 - `decks` - Card decks
 - `deities` - Deities and pantheons
@@ -334,7 +335,8 @@ For **D&D 5th Edition:**
 - `feats` - Character feats
 - `items` - Equipment and magic items
 - `monsters` - Bestiary creatures and legendary groups
-- `races` - Character races and subraces
+- `races` - Character races
+- `subraces` - Character subraces
 - `spells` - Spells and cantrips
 - `tables` - Reference tables
 - `variantRules` - Variant and optional rules
@@ -364,6 +366,7 @@ For **Pathfinder 2nd Edition:**
 - If a compendium type path is not specified, files are written to the default compendium path (backward compatible)
 - For monster types, the entire folder structure (including subdirectories for monster types) is placed at the configured location
 - The configuration prevents unwanted nested folders (e.g., specifying a path for `items` won't result in files being placed in `items/items`)
+- **Subrace and Subclass Fallback:** If `subraces` or `subclasses` paths are not configured, they fall back to using the `races` and `classes` paths respectively, maintaining backward compatibility with existing configurations
 
 **Mixed configuration example:**
 
@@ -380,6 +383,25 @@ In this example:
 - Spells go to `/spellbook/`
 - All other compendium content (items, races, backgrounds, etc.) goes to `/default/`
 - Rules content still uses the default rules path
+
+**Subrace and Subclass organization example:**
+
+```json
+  "paths": {
+    "compendium": "/compendium/",
+    "races": "/character/races/",
+    "subraces": "/character/subraces/",
+    "classes": "/character/classes/",
+    "subclasses": "/character/subclasses/"
+  }
+```
+
+In this example:
+- Races go to `/character/races/`
+- Subraces go to `/character/subraces/` (separate from races)
+- Classes go to `/character/classes/`
+- Subclasses go to `/character/subclasses/` (separate from classes)
+- All other content goes to `/compendium/`
 
 > [!WARNING]
 > Do not reorganize or edit the generated content. Tuck generated content away in your vault and use it as read-only reference material. It should be cheap and easy to re-run the tool (add more content, errata, etc.). See [Recommendations](../README.md#recommendations-for-using-the-cli) for more information.

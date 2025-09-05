@@ -68,7 +68,8 @@ public class Tools5eLinkifier {
             case adventureData -> "adventures";
             case background -> "backgrounds";
             case bookData -> "books";
-            case classtype, subclass -> "classes";
+            case classtype -> "classes";
+            case subclass -> getSubclassPathKey();
             case condition, status -> "conditions";
             case card, deck -> "decks";
             case deity -> "deities";
@@ -76,12 +77,31 @@ public class Tools5eLinkifier {
             case feat -> "feats";
             case item, itemGroup, magicvariant -> "items";
             case monster, legendaryGroup -> "monsters";
-            case race, subrace -> "races";
+            case race -> "races";
+            case subrace -> getSubracePathKey();
             case spell -> "spells";
             case table, tableGroup -> "tables";
             case variantrule -> "variantRules";
             default -> null;
         };
+    }
+
+    private String getSubclassPathKey() {
+        CompendiumConfig config = TtrpgConfig.getConfig();
+        if (config != null && config.getTypeSpecificVaultPath("subclasses") != null) {
+            return "subclasses";
+        }
+        // Fall back to classes path if no specific subclasses path is configured
+        return "classes";
+    }
+
+    private String getSubracePathKey() {
+        CompendiumConfig config = TtrpgConfig.getConfig();
+        if (config != null && config.getTypeSpecificVaultPath("subraces") != null) {
+            return "subraces";
+        }
+        // Fall back to races path if no specific subraces path is configured
+        return "races";
     }
 
     public String getRelativePath(Tools5eSources sources) {

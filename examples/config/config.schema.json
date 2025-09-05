@@ -135,6 +135,12 @@
         "spells" : {
           "type" : "string"
         },
+        "subclasses" : {
+          "type" : "string"
+        },
+        "subraces" : {
+          "type" : "string"
+        },
         "tables" : {
           "type" : "string"
         },

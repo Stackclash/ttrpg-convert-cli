@@ -214,4 +214,50 @@ public class ConfiguratorTest {
             assertThat(config.getTypeSpecificVaultPath("items")).isNull();
         });
     }
+
+    @Test
+    public void testSubraceSubclassPaths() throws Exception {
+        TtrpgConfig.init(tui, Datasource.tools5e);
+        Configurator test = new Configurator(tui);
+
+        tui.readFile(TestUtils.TEST_RESOURCES.resolve("subrace-subclass-paths.json"), List.of(), (f, node) -> {
+            test.readConfigIfPresent(node);
+            CompendiumConfig config = TtrpgConfig.getConfig();
+            assertThat(config).isNotNull();
+
+            // Test that separate subrace and subclass paths are configured
+            assertThat(config.getTypeSpecificVaultPath("races")).isEqualTo("character/races/");
+            assertThat(config.getTypeSpecificFilePath("races")).isEqualTo(Path.of("character/races/"));
+            assertThat(config.getTypeSpecificVaultPath("subraces")).isEqualTo("character/subraces/");
+            assertThat(config.getTypeSpecificFilePath("subraces")).isEqualTo(Path.of("character/subraces/"));
+
+            assertThat(config.getTypeSpecificVaultPath("classes")).isEqualTo("character/classes/");
+            assertThat(config.getTypeSpecificFilePath("classes")).isEqualTo(Path.of("character/classes/"));
+            assertThat(config.getTypeSpecificVaultPath("subclasses")).isEqualTo("character/subclasses/");
+            assertThat(config.getTypeSpecificFilePath("subclasses")).isEqualTo(Path.of("character/subclasses/"));
+        });
+    }
+
+    @Test
+    public void testSubraceSubclassFallback() throws Exception {
+        TtrpgConfig.init(tui, Datasource.tools5e);
+        Configurator test = new Configurator(tui);
+
+        tui.readFile(TestUtils.TEST_RESOURCES.resolve("fallback-paths.json"), List.of(), (f, node) -> {
+            test.readConfigIfPresent(node);
+            CompendiumConfig config = TtrpgConfig.getConfig();
+            assertThat(config).isNotNull();
+
+            // Test that parent paths are configured but subrace/subclass paths are not
+            assertThat(config.getTypeSpecificVaultPath("races")).isEqualTo("character/races/");
+            assertThat(config.getTypeSpecificFilePath("races")).isEqualTo(Path.of("character/races/"));
+            assertThat(config.getTypeSpecificVaultPath("subraces")).isNull(); // Not explicitly configured
+            assertThat(config.getTypeSpecificFilePath("subraces")).isNull();
+
+            assertThat(config.getTypeSpecificVaultPath("classes")).isEqualTo("character/classes/");
+            assertThat(config.getTypeSpecificFilePath("classes")).isEqualTo(Path.of("character/classes/"));
+            assertThat(config.getTypeSpecificVaultPath("subclasses")).isNull(); // Not explicitly configured
+            assertThat(config.getTypeSpecificFilePath("subclasses")).isNull();
+        });
+    }
 }

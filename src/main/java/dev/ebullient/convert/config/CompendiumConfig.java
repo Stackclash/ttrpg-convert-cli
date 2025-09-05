@@ -481,6 +481,7 @@ public class CompendiumConfig {
             processTypeSpecificPath("backgrounds", paths.backgrounds);
             processTypeSpecificPath("books", paths.books);
             processTypeSpecificPath("classes", paths.classes);
+            processTypeSpecificPath("subclasses", paths.subclasses);
             processTypeSpecificPath("conditions", paths.conditions);
             processTypeSpecificPath("decks", paths.decks);
             processTypeSpecificPath("deities", paths.deities);
@@ -489,6 +490,7 @@ public class CompendiumConfig {
             processTypeSpecificPath("items", paths.items);
             processTypeSpecificPath("monsters", paths.monsters);
             processTypeSpecificPath("races", paths.races);
+            processTypeSpecificPath("subraces", paths.subraces);
             processTypeSpecificPath("spells", paths.spells);
             processTypeSpecificPath("tables", paths.tables);
             processTypeSpecificPath("variantRules", paths.variantRules);

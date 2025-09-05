@@ -111,6 +111,7 @@ public class UserConfig {
         String backgrounds;
         String books;
         String classes;
+        String subclasses;
         String conditions;
         String decks;
         String deities;
@@ -119,6 +120,7 @@ public class UserConfig {
         String items;
         String monsters;
         String races;
+        String subraces;
         String spells;
         String tables;
         String variantRules;
