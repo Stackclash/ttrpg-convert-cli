@@ -96,7 +96,11 @@ public class Tools5eLinkifier {
         if (type != null && type.useCompendiumBase()) {
             String configTypeName = type.getConfigTypeName();
             if (configTypeName != null) {
-                return index.hasTypeSpecificPath(configTypeName);
+                // Lazily get the index if it's null
+                Tools5eIndex currentIndex = index != null ? index : Tools5eIndex.instance();
+                if (currentIndex != null) {
+                    return currentIndex.hasTypeSpecificPath(configTypeName);
+                }
             }
         }
         return false;
