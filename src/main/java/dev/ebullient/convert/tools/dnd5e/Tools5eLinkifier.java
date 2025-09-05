@@ -154,8 +154,8 @@ public class Tools5eLinkifier {
 
         String customVaultPath = config.getTypeSpecificVaultPath(pathKey);
         if (customVaultPath != null) {
-            // Remove the vault root prefix and return just the relative part
-            return customVaultPath.replaceAll("/$", ""); // Remove trailing slash
+            // Remove leading and trailing slashes to return just the relative part
+            return customVaultPath.replaceAll("^/+|/+$", "");
         }
 
         return null;
