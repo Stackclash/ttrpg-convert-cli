@@ -4,6 +4,7 @@ import static dev.ebullient.convert.StringUtil.toAnchorTag;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import dev.ebullient.convert.config.CompendiumConfig;
 import dev.ebullient.convert.config.TtrpgConfig;
 import dev.ebullient.convert.io.Tui;
 import dev.ebullient.convert.tools.JsonTextConverter.SourceField;
@@ -44,9 +45,43 @@ public class Tools5eLinkifier {
     }
 
     public String vaultRoot(Tools5eIndexType type) {
+        // Check for custom path first
+        CompendiumConfig config = TtrpgConfig.getConfig();
+        if (config != null) {
+            String pathKey = getPathKeyForType(type);
+            if (pathKey != null) {
+                String customVaultPath = config.getTypeSpecificVaultPath(pathKey);
+                if (customVaultPath != null) {
+                    return customVaultPath;
+                }
+            }
+        }
+
+        // Fall back to default behavior
         return type.useCompendiumBase()
                 ? index.compendiumVaultRoot()
                 : index.rulesVaultRoot();
+    }
+
+    private String getPathKeyForType(Tools5eIndexType type) {
+        return switch (type) {
+            case adventureData -> "adventures";
+            case background -> "backgrounds";
+            case bookData -> "books";
+            case classtype, subclass -> "classes";
+            case condition, status -> "conditions";
+            case card, deck -> "decks";
+            case deity -> "deities";
+            case facility -> "facilities";
+            case feat -> "feats";
+            case item, itemGroup, magicvariant -> "items";
+            case monster, legendaryGroup -> "monsters";
+            case race, subrace -> "races";
+            case spell -> "spells";
+            case table, tableGroup -> "tables";
+            case variantrule -> "variantRules";
+            default -> null;
+        };
     }
 
     public String getRelativePath(Tools5eSources sources) {
@@ -54,6 +89,13 @@ public class Tools5eLinkifier {
     }
 
     public String getRelativePath(Tools5eIndexType type) {
+        // Check if there's a custom path configured for this type
+        String customPath = getCustomRelativePath(type);
+        if (customPath != null) {
+            return customPath;
+        }
+
+        // Fall back to default hardcoded paths
         return switch (type) {
             case adventureData -> "adventures";
             case bookData -> "books";
@@ -77,6 +119,26 @@ public class Tools5eLinkifier {
             case variantrule -> "variant-rules";
             default -> type.name() + 's';
         };
+    }
+
+    private String getCustomRelativePath(Tools5eIndexType type) {
+        CompendiumConfig config = TtrpgConfig.getConfig();
+        if (config == null) {
+            return null;
+        }
+
+        String pathKey = getPathKeyForType(type);
+        if (pathKey == null) {
+            return null;
+        }
+
+        String customVaultPath = config.getTypeSpecificVaultPath(pathKey);
+        if (customVaultPath != null) {
+            // Remove the vault root prefix and return just the relative part
+            return customVaultPath.replaceAll("/$", ""); // Remove trailing slash
+        }
+
+        return null;
     }
 
     public String getTargetFileName(String name, Tools5eSources sources) {

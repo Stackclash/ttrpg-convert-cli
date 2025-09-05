@@ -8,6 +8,8 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import dev.ebullient.convert.config.CompendiumConfig;
+import dev.ebullient.convert.config.TtrpgConfig;
 import dev.ebullient.convert.io.Tui;
 import dev.ebullient.convert.tools.IndexType;
 import dev.ebullient.convert.tools.JsonNodeReader;
@@ -238,6 +240,13 @@ public enum Pf2eIndexType implements IndexType, JsonNodeReader {
     }
 
     public String relativePath() {
+        // Check if there's a custom path configured for this type
+        String customPath = getCustomRelativePath();
+        if (customPath != null) {
+            return customPath;
+        }
+
+        // Fall back to default hardcoded paths
         // also update #isOutputType
         return switch (this) {
             // Simple suffix subdir (rules or compendium)
@@ -259,6 +268,50 @@ public enum Pf2eIndexType implements IndexType, JsonNodeReader {
             case deity -> "setting/deities";
             case ability -> "abilities";
             default -> ".";
+        };
+    }
+
+    private String getCustomRelativePath() {
+        CompendiumConfig config = TtrpgConfig.getConfig();
+        if (config == null) {
+            return null;
+        }
+
+        String pathKey = getPathKeyForPf2eType();
+        if (pathKey == null) {
+            return null;
+        }
+
+        String customVaultPath = config.getTypeSpecificVaultPath(pathKey);
+        if (customVaultPath != null) {
+            // Remove the vault root prefix and return just the relative part
+            return customVaultPath.replaceAll("/$", ""); // Remove trailing slash
+        }
+
+        return null;
+    }
+
+    private String getPathKeyForPf2eType() {
+        return switch (this) {
+            case action -> "actions";
+            case adventure -> "adventures";
+            case ancestry -> "ancestries";
+            case archetype -> "archetypes";
+            case background -> "backgrounds";
+            case affliction, curse, disease -> "afflictions";
+            case classtype -> "classes";
+            case creature -> "creatures";
+            case deity -> "deities";
+            case feat -> "feats";
+            case hazard -> "hazards";
+            case item, vehicle -> "items"; // Vehicle goes into equipment in config, but items for backward compatibility
+            case ritual -> "rituals";
+            case spell -> "spells";
+            case table -> "tables";
+            case trait -> "traits";
+            case variantrule -> "variantRules";
+            case relicGift -> "relics";
+            default -> null;
         };
     }
 

@@ -132,4 +132,86 @@ public class ConfiguratorTest {
             assertThat(config.imageOptions().copyInternal()).isFalse();
         });
     }
+
+    @Test
+    public void testPerTypePaths() throws Exception {
+        TtrpgConfig.init(tui, Datasource.tools5e);
+        Configurator test = new Configurator(tui);
+
+        tui.readFile(TestUtils.TEST_RESOURCES.resolve("per-type-paths.json"), List.of(), (f, node) -> {
+            test.readConfigIfPresent(node);
+            CompendiumConfig config = TtrpgConfig.getConfig();
+            assertThat(config).isNotNull();
+
+            // Test basic paths still work
+            assertThat(config.compendiumVaultRoot()).isEqualTo("default-compendium/");
+            assertThat(config.compendiumFilePath()).isEqualTo(Path.of("default-compendium/"));
+            assertThat(config.rulesVaultRoot()).isEqualTo("rules/");
+            assertThat(config.rulesFilePath()).isEqualTo(Path.of("rules/"));
+
+            // Test per-type paths
+            assertThat(config.getTypeSpecificVaultPath("monsters")).isEqualTo("custom-monsters/");
+            assertThat(config.getTypeSpecificFilePath("monsters")).isEqualTo(Path.of("custom-monsters/"));
+            assertThat(config.getTypeSpecificVaultPath("spells")).isEqualTo("custom-spells/");
+            assertThat(config.getTypeSpecificFilePath("spells")).isEqualTo(Path.of("custom-spells/"));
+            assertThat(config.getTypeSpecificVaultPath("items")).isEqualTo("equipment/");
+            assertThat(config.getTypeSpecificFilePath("items")).isEqualTo(Path.of("equipment/"));
+
+            // Test non-configured types return null
+            assertThat(config.getTypeSpecificVaultPath("backgrounds")).isNull();
+            assertThat(config.getTypeSpecificFilePath("backgrounds")).isNull();
+        });
+    }
+
+    @Test
+    public void testPartialPerTypePaths() throws Exception {
+        TtrpgConfig.init(tui, Datasource.tools5e);
+        Configurator test = new Configurator(tui);
+
+        tui.readFile(TestUtils.TEST_RESOURCES.resolve("partial-per-type-paths.json"), List.of(), (f, node) -> {
+            test.readConfigIfPresent(node);
+            CompendiumConfig config = TtrpgConfig.getConfig();
+            assertThat(config).isNotNull();
+
+            // Test fallback to defaults when no base paths are configured
+            assertThat(config.compendiumVaultRoot()).isEqualTo("compendium/");
+            assertThat(config.compendiumFilePath()).isEqualTo(Path.of("compendium/"));
+            assertThat(config.rulesVaultRoot()).isEqualTo("rules/");
+            assertThat(config.rulesFilePath()).isEqualTo(Path.of("rules/"));
+
+            // Test only specified per-type paths are set
+            assertThat(config.getTypeSpecificVaultPath("monsters")).isEqualTo("bestiary-only/");
+            assertThat(config.getTypeSpecificFilePath("monsters")).isEqualTo(Path.of("bestiary-only/"));
+            assertThat(config.getTypeSpecificVaultPath("spells")).isEqualTo("magic/");
+            assertThat(config.getTypeSpecificFilePath("spells")).isEqualTo(Path.of("magic/"));
+
+            // Test non-configured types return null (will fall back to default compendium behavior)
+            assertThat(config.getTypeSpecificVaultPath("items")).isNull();
+            assertThat(config.getTypeSpecificFilePath("items")).isNull();
+        });
+    }
+
+    @Test
+    public void testBackwardCompatibility() throws Exception {
+        TtrpgConfig.init(tui, Datasource.tools5e);
+        Configurator test = new Configurator(tui);
+
+        // Test existing paths.json still works as before
+        tui.readFile(TestUtils.TEST_RESOURCES.resolve("paths.json"), List.of(), (f, node) -> {
+            test.readConfigIfPresent(node);
+            CompendiumConfig config = TtrpgConfig.getConfig();
+            assertThat(config).isNotNull();
+
+            // Verify existing behavior unchanged
+            assertThat(config.compendiumVaultRoot()).isEqualTo("");
+            assertThat(config.compendiumFilePath()).isEqualTo(CompendiumConfig.CWD);
+            assertThat(config.rulesVaultRoot()).isEqualTo("rules/");
+            assertThat(config.rulesFilePath()).isEqualTo(Path.of("rules/"));
+
+            // Verify no per-type paths are set
+            assertThat(config.getTypeSpecificVaultPath("monsters")).isNull();
+            assertThat(config.getTypeSpecificVaultPath("spells")).isNull();
+            assertThat(config.getTypeSpecificVaultPath("items")).isNull();
+        });
+    }
 }

@@ -1,0 +1,6 @@
+{
+  "paths": {
+    "monsters": "bestiary-only/",
+    "spells": "magic/"
+  }
+}
