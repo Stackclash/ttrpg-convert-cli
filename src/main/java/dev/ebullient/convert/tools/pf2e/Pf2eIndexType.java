@@ -131,12 +131,56 @@ public enum Pf2eIndexType implements IndexType, JsonNodeReader {
         return String.format("%s|%s|%s", this.name(), name, source).toLowerCase();
     }
 
+    private String getPathKeyForType() {
+        return switch (this) {
+            case action -> "actions";
+            case adventure -> "adventures";
+            case ancestry -> "ancestries";
+            case archetype -> "archetypes";
+            case background -> "backgrounds";
+            case affliction, curse, disease -> "afflictions";
+            case classtype -> "classes";
+            case creature -> "creatures";
+            case deity -> "deities";
+            case baseitem, item -> "equipment";
+            case feat -> "feats";
+            case hazard -> "hazards";
+            case ritual -> "rituals";
+            case spell -> "spells";
+            case table -> "tables";
+            case trait -> "traits";
+            case variantrule -> "variantRules";
+            case vehicle -> "vehicles";
+            default -> null;
+        };
+    }
+
     public String getVaultRoot(Pf2eIndex index) {
-        return useCompendiumBase() ? index.compendiumVaultRoot() : index.rulesVaultRoot();
+        if (useCompendiumBase()) {
+            String pathKey = getPathKeyForType();
+            if (pathKey != null) {
+                String typeSpecificPath = index.getVaultRoot(pathKey);
+                if (typeSpecificPath != null) {
+                    return typeSpecificPath;
+                }
+            }
+            return index.compendiumVaultRoot();
+        }
+        return index.rulesVaultRoot();
     }
 
     public Path getFilePath(Pf2eIndex index) {
-        return useCompendiumBase() ? index.compendiumFilePath() : index.rulesFilePath();
+        if (useCompendiumBase()) {
+            String pathKey = getPathKeyForType();
+            if (pathKey != null) {
+                Path typeSpecificPath = index.getFilePath(pathKey);
+                if (typeSpecificPath != null) {
+                    return typeSpecificPath;
+                }
+            }
+            return index.compendiumFilePath();
+        }
+        return index.rulesFilePath();
     }
 
     public String relativeRepositoryRoot(Pf2eIndex index) {

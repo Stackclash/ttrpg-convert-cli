@@ -539,6 +539,90 @@ public class Tools5eSources extends CompendiumSources {
         return imageRef;
     }
 
+    private static String getPathKeyForType(Tools5eIndexType type) {
+        return switch (type) {
+            case adventureData -> "adventures";
+            case background -> "backgrounds";
+            case bookData -> "books";
+            case classtype -> "classes";
+            case subclass -> "subclasses";
+            case condition, status -> "conditions";
+            case card, deck -> "decks";
+            case deity -> "deities";
+            case facility -> "facilities";
+            case feat -> "feats";
+            case item, itemGroup, magicvariant -> "items";
+            case monster, legendaryGroup -> "monsters";
+            case race -> "races";
+            case subrace -> "subraces";
+            case spell -> "spells";
+            case table, tableGroup -> "tables";
+            case variantrule -> "variantRules";
+            default -> null;
+        };
+    }
+
+    public ImageRef buildTokenImageRef(Tools5eIndex index, Tools5eIndexType type, String sourcePath, Path target,
+            boolean useCompendium) {
+        String pathKey = getPathKeyForType(type);
+        String key = sourcePath.toString();
+        ImageRef imageRef = new ImageRef.Builder()
+                .setRelativePath(target)
+                .setInternalPath(sourcePath)
+                .setRootFilepath(useCompendium && pathKey != null ? index.getFilePath(pathKey)
+                        : (useCompendium ? index.compendiumFilePath() : index.rulesFilePath()))
+                .setVaultRoot(useCompendium && pathKey != null ? index.getVaultRoot(pathKey)
+                        : (useCompendium ? index.compendiumVaultRoot() : index.rulesVaultRoot()))
+                .build(imageSourceToRef.get(key));
+        imageSourceToRef.putIfAbsent(key, imageRef);
+        return imageRef;
+    }
+
+    public ImageRef buildImageRef(Tools5eIndex index, Tools5eIndexType type, JsonMediaHref mediaHref, String imageBasePath,
+            boolean useCompendium) {
+        String pathKey = getPathKeyForType(type);
+        final String title = mediaHref.title == null ? "" : mediaHref.title;
+        final String altText = mediaHref.altText == null ? title : mediaHref.altText;
+        final String key = mediaHref.href.path == null
+                ? mediaHref.href.url
+                : mediaHref.href.path;
+
+        if (mediaHref.href.url == null && mediaHref.href.path == null) {
+            Tui.instance().errorf("We have an ImageRef (%s) with no path", mediaHref);
+            ImageRef imageRef = new ImageRef.Builder()
+                    .setTitle(index.replaceText(altText))
+                    .build();
+            imageSourceToRef.putIfAbsent(key, imageRef);
+            return imageRef;
+        }
+
+        String fileName = key.substring(key.lastIndexOf("/") + 1);
+        int x = fileName.lastIndexOf(".");
+        fileName = x > 0
+                ? index.slugify(fileName.substring(0, x)) + fileName.substring(x)
+                : index.slugify(fileName);
+        Path target = Path.of(imageBasePath, "img", fileName);
+
+        ImageRef.Builder builder = new ImageRef.Builder()
+                .setWidth(mediaHref.width)
+                .setTitle(index.replaceText(altText))
+                .setRelativePath(target)
+                .setRootFilepath(useCompendium && pathKey != null ? index.getFilePath(pathKey)
+                        : (useCompendium ? index.compendiumFilePath() : index.rulesFilePath()))
+                .setVaultRoot(useCompendium && pathKey != null ? index.getVaultRoot(pathKey)
+                        : (useCompendium ? index.compendiumVaultRoot() : index.rulesVaultRoot()));
+
+        if (mediaHref.href.path == null) {
+            builder.setUrl(mediaHref.href.url);
+        } else {
+            builder.setInternalPath(mediaHref.href.path);
+        }
+
+        ImageRef imageRef = builder.build(imageSourceToRef.get(key));
+        imageSourceToRef.putIfAbsent(key, imageRef);
+        return imageRef;
+    }
+
     /** Amend optionalfeaturetype with sources of related optional features */
     public void amendSources(Tools5eSources otherSources) {
         this.sources.addAll(otherSources.sources);
