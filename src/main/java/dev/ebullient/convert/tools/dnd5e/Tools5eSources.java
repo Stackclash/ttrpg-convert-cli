@@ -601,15 +601,21 @@ public class Tools5eSources extends CompendiumSources {
         fileName = x > 0
                 ? index.slugify(fileName.substring(0, x)) + fileName.substring(x)
                 : index.slugify(fileName);
-        Path target = Path.of(imageBasePath, "img", fileName);
+        // Check if we have a custom path configured for this type
+        boolean hasCustomPath = pathKey != null && TtrpgConfig.getConfig().getTypeSpecificVaultPath(pathKey) != null;
+
+        // When a custom path is configured, don't include the type directory in the image base path
+        // since the root file path will point to the custom directory
+        String actualImageBasePath = hasCustomPath ? "" : imageBasePath;
+        Path target = Path.of(actualImageBasePath, "img", fileName);
 
         ImageRef.Builder builder = new ImageRef.Builder()
                 .setWidth(mediaHref.width)
                 .setTitle(index.replaceText(altText))
                 .setRelativePath(target)
-                .setRootFilepath(useCompendium && pathKey != null ? index.getFilePath(pathKey)
+                .setRootFilepath(useCompendium && hasCustomPath ? index.getFilePath(pathKey)
                         : (useCompendium ? index.compendiumFilePath() : index.rulesFilePath()))
-                .setVaultRoot(useCompendium && pathKey != null ? index.getVaultRoot(pathKey)
+                .setVaultRoot(useCompendium && hasCustomPath ? index.getVaultRoot(pathKey)
                         : (useCompendium ? index.compendiumVaultRoot() : index.rulesVaultRoot()));
 
         if (mediaHref.href.path == null) {
