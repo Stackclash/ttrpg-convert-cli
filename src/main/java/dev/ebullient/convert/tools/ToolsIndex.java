@@ -57,6 +57,16 @@ public interface ToolsIndex {
         return cfg().compendiumFilePath();
     }
 
+    default String getVaultRoot(String type) {
+        String typeSpecificPath = cfg().getTypeSpecificVaultPath(type);
+        return typeSpecificPath != null ? typeSpecificPath : compendiumVaultRoot();
+    }
+
+    default Path getFilePath(String type) {
+        Path typeSpecificPath = cfg().getTypeSpecificFilePath(type);
+        return typeSpecificPath != null ? typeSpecificPath : compendiumFilePath();
+    }
+
     default boolean resolveSources(Path toolsPath) {
         // Check for a 'data' subdirectory
         Path data = toolsPath.resolve("data");

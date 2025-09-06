@@ -197,6 +197,14 @@ public class CompendiumConfig {
         return pathAttributes().compendiumFilePath;
     }
 
+    public String getTypeSpecificVaultPath(String type) {
+        return pathAttributes().perTypeVaultPaths.get(type);
+    }
+
+    public Path getTypeSpecificFilePath(String type) {
+        return pathAttributes().perTypeFilePaths.get(type);
+    }
+
     public String tagOf(String... tag) {
         return tagPrefix + Arrays.stream(tag)
                 .map(Tui::slugify)
@@ -436,6 +444,10 @@ public class CompendiumConfig {
         Path rulesFilePath = Path.of("rules/");
         Path compendiumFilePath = Path.of("compendium/");
 
+        // Per-compendium-type paths
+        final Map<String, String> perTypeVaultPaths = new HashMap<>();
+        final Map<String, Path> perTypeFilePaths = new HashMap<>();
+
         PathAttributes() {
         }
 
@@ -456,6 +468,52 @@ public class CompendiumConfig {
             } else if (old != null) {
                 compendiumFilePath = old.compendiumFilePath;
                 compendiumVaultRoot = old.compendiumVaultRoot;
+            }
+
+            // Copy old per-type paths if available
+            if (old != null) {
+                perTypeVaultPaths.putAll(old.perTypeVaultPaths);
+                perTypeFilePaths.putAll(old.perTypeFilePaths);
+            }
+
+            // Process per-type paths from configuration
+            processTypeSpecificPath("adventures", paths.adventures);
+            processTypeSpecificPath("backgrounds", paths.backgrounds);
+            processTypeSpecificPath("books", paths.books);
+            processTypeSpecificPath("classes", paths.classes);
+            processTypeSpecificPath("subclasses", paths.subclasses);
+            processTypeSpecificPath("conditions", paths.conditions);
+            processTypeSpecificPath("decks", paths.decks);
+            processTypeSpecificPath("deities", paths.deities);
+            processTypeSpecificPath("facilities", paths.facilities);
+            processTypeSpecificPath("feats", paths.feats);
+            processTypeSpecificPath("items", paths.items);
+            processTypeSpecificPath("monsters", paths.monsters);
+            processTypeSpecificPath("races", paths.races);
+            processTypeSpecificPath("subraces", paths.subraces);
+            processTypeSpecificPath("spells", paths.spells);
+            processTypeSpecificPath("tables", paths.tables);
+            processTypeSpecificPath("variantRules", paths.variantRules);
+
+            // Pathfinder 2e specific types
+            processTypeSpecificPath("actions", paths.actions);
+            processTypeSpecificPath("ancestries", paths.ancestries);
+            processTypeSpecificPath("archetypes", paths.archetypes);
+            processTypeSpecificPath("afflictions", paths.afflictions);
+            processTypeSpecificPath("creatures", paths.creatures);
+            processTypeSpecificPath("hazards", paths.hazards);
+            processTypeSpecificPath("rituals", paths.rituals);
+            processTypeSpecificPath("traits", paths.traits);
+            processTypeSpecificPath("vehicles", paths.vehicles);
+            processTypeSpecificPath("equipment", paths.equipment);
+            processTypeSpecificPath("relics", paths.relics);
+        }
+
+        private void processTypeSpecificPath(String type, String configuredPath) {
+            if (configuredPath != null) {
+                String root = toRoot(configuredPath);
+                perTypeVaultPaths.put(type, toVaultRoot(root));
+                perTypeFilePaths.put(type, toFilesystemRoot(root));
             }
         }
 

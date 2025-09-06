@@ -1,0 +1,9 @@
+{
+  "paths": {
+    "compendium": "default-compendium/",
+    "rules": "rules/",
+    "monsters": "custom-monsters/",
+    "spells": "custom-spells/",
+    "items": "equipment/"
+  }
+}
