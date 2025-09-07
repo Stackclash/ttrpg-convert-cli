@@ -1,0 +1,10 @@
+{
+  "paths": {
+    "compendium": "default-compendium/",
+    "rules": "rules/",
+    "classes": "character/classes/",
+    "subclasses": "character/subclasses/",
+    "races": "character/races/",
+    "subraces": "character/subraces/"
+  }
+}

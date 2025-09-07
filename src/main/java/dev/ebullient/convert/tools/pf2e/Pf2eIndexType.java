@@ -8,6 +8,8 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import dev.ebullient.convert.config.CompendiumConfig;
+import dev.ebullient.convert.config.TtrpgConfig;
 import dev.ebullient.convert.io.Tui;
 import dev.ebullient.convert.tools.IndexType;
 import dev.ebullient.convert.tools.JsonNodeReader;
@@ -129,12 +131,56 @@ public enum Pf2eIndexType implements IndexType, JsonNodeReader {
         return String.format("%s|%s|%s", this.name(), name, source).toLowerCase();
     }
 
+    private String getPathKeyForType() {
+        return switch (this) {
+            case action -> "actions";
+            case adventure -> "adventures";
+            case ancestry -> "ancestries";
+            case archetype -> "archetypes";
+            case background -> "backgrounds";
+            case affliction, curse, disease -> "afflictions";
+            case classtype -> "classes";
+            case creature -> "creatures";
+            case deity -> "deities";
+            case baseitem, item -> "equipment";
+            case feat -> "feats";
+            case hazard -> "hazards";
+            case ritual -> "rituals";
+            case spell -> "spells";
+            case table -> "tables";
+            case trait -> "traits";
+            case variantrule -> "variantRules";
+            case vehicle -> "vehicles";
+            default -> null;
+        };
+    }
+
     public String getVaultRoot(Pf2eIndex index) {
-        return useCompendiumBase() ? index.compendiumVaultRoot() : index.rulesVaultRoot();
+        if (useCompendiumBase()) {
+            String pathKey = getPathKeyForType();
+            if (pathKey != null) {
+                String typeSpecificPath = index.getVaultRoot(pathKey);
+                if (typeSpecificPath != null) {
+                    return typeSpecificPath;
+                }
+            }
+            return index.compendiumVaultRoot();
+        }
+        return index.rulesVaultRoot();
     }
 
     public Path getFilePath(Pf2eIndex index) {
-        return useCompendiumBase() ? index.compendiumFilePath() : index.rulesFilePath();
+        if (useCompendiumBase()) {
+            String pathKey = getPathKeyForType();
+            if (pathKey != null) {
+                Path typeSpecificPath = index.getFilePath(pathKey);
+                if (typeSpecificPath != null) {
+                    return typeSpecificPath;
+                }
+            }
+            return index.compendiumFilePath();
+        }
+        return index.rulesFilePath();
     }
 
     public String relativeRepositoryRoot(Pf2eIndex index) {
@@ -238,6 +284,13 @@ public enum Pf2eIndexType implements IndexType, JsonNodeReader {
     }
 
     public String relativePath() {
+        // Check if there's a custom path configured for this type
+        String customPath = getCustomRelativePath();
+        if (customPath != null) {
+            return customPath;
+        }
+
+        // Fall back to default hardcoded paths
         // also update #isOutputType
         return switch (this) {
             // Simple suffix subdir (rules or compendium)
@@ -259,6 +312,50 @@ public enum Pf2eIndexType implements IndexType, JsonNodeReader {
             case deity -> "setting/deities";
             case ability -> "abilities";
             default -> ".";
+        };
+    }
+
+    private String getCustomRelativePath() {
+        CompendiumConfig config = TtrpgConfig.getConfig();
+        if (config == null) {
+            return null;
+        }
+
+        String pathKey = getPathKeyForPf2eType();
+        if (pathKey == null) {
+            return null;
+        }
+
+        String customVaultPath = config.getTypeSpecificVaultPath(pathKey);
+        if (customVaultPath != null) {
+            // Remove leading and trailing slashes to return just the relative part
+            return customVaultPath.replaceAll("^/+|/+$", "");
+        }
+
+        return null;
+    }
+
+    private String getPathKeyForPf2eType() {
+        return switch (this) {
+            case action -> "actions";
+            case adventure -> "adventures";
+            case ancestry -> "ancestries";
+            case archetype -> "archetypes";
+            case background -> "backgrounds";
+            case affliction, curse, disease -> "afflictions";
+            case classtype -> "classes";
+            case creature -> "creatures";
+            case deity -> "deities";
+            case feat -> "feats";
+            case hazard -> "hazards";
+            case item, vehicle -> "items"; // Vehicle goes into equipment in config, but items for backward compatibility
+            case ritual -> "rituals";
+            case spell -> "spells";
+            case table -> "tables";
+            case trait -> "traits";
+            case variantrule -> "variantRules";
+            case relicGift -> "relics";
+            default -> null;
         };
     }
 
