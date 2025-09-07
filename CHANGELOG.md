@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/Stackclash/ttrpg-convert-cli/compare/1.0.0...1.1.0) (2025-09-04)
+
+
+### Features
+
+* expand available QuteSpell template variables for components, damage types, and saving throws ([#10](https://github.com/Stackclash/ttrpg-convert-cli/issues/10)) ([8ff768e](https://github.com/Stackclash/ttrpg-convert-cli/commit/8ff768e6bc9257a441acefb0fae0b3095256f1d5))
+
+
+### Documentation
+
+* add comprehensive Copilot instructions for efficient development workflow ([#6](https://github.com/Stackclash/ttrpg-convert-cli/issues/6)) ([29a8171](https://github.com/Stackclash/ttrpg-convert-cli/commit/29a8171c1ed9d0b5483e2e59f1967043da9f5f36))
+
 ## 1.0.0 (2025-09-03)
 
 
