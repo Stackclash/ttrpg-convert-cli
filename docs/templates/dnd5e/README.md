@@ -61,7 +61,7 @@ Qute templates for generating content from 5eTools data.
 
     Extension of [Tools5eQuteBase](Tools5eQuteBase.md).
 
-- [QuteSpell](QuteSpell.md): 5eTools spell attributes (`spell2md.txt`)
+- [QuteSpell](QuteSpell/README.md): 5eTools spell attributes (`spell2md.txt`)
 
     Extension of [Tools5eQuteBase](Tools5eQuteBase.md).
 

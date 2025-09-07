@@ -1,0 +1,37 @@
+---
+obsidianUIMode: preview
+cssclasses: json5e-spell
+tags: 
+- test
+{#if resource.tags }{#for tag in resource.tags}
+- {tag}
+{/for}{/if}
+aliases:
+- {resource.name}
+---
+# [{resource.name}]({resource.vaultPath})
+*{resource.level}, {resource.school}{#if resource.ritual} (ritual){/if}*  
+
+- **Casting time:** {resource.time}{#if resource.ritual} unless cast as a ritual{/if}
+- **Range:** {resource.range}
+- **Components:** {resource.components}
+- **Duration:** {resource.duration}
+
+{#if resource.damage}
+**Damage:** {resource.damage.baseDamage}{#if resource.damage.scaling}  
+**At Higher Levels:** {resource.damage.scaling}{/if}
+{/if}
+
+{#if resource.areaOfEffect}
+**Area of Effect:** {resource.areaOfEffect.size}-foot {resource.areaOfEffect.shape}
+{/if}
+
+{#if resource.savingThrowSucceeds}
+**Saving Throw:** {#if resource.savingThrows}{#for save in resource.savingThrows}{save}{#if save_hasNext}, {/if}{/for} ({resource.savingThrowSucceeds}){#else}{resource.savingThrowSucceeds}{/if}
+{/if}
+
+{resource.text}
+
+**Classes**: {resource.classes}
+
+Source: {resource.source}

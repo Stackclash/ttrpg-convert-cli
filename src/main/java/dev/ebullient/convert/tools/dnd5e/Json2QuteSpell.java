@@ -17,6 +17,8 @@ import dev.ebullient.convert.tools.JsonNodeReader;
 import dev.ebullient.convert.tools.Tags;
 import dev.ebullient.convert.tools.dnd5e.SpellEntry.SpellReference;
 import dev.ebullient.convert.tools.dnd5e.qute.QuteSpell;
+import dev.ebullient.convert.tools.dnd5e.qute.QuteSpell.QuteAreaOfEffect;
+import dev.ebullient.convert.tools.dnd5e.qute.QuteSpell.QuteDamage;
 import dev.ebullient.convert.tools.dnd5e.qute.Tools5eQuteBase;
 
 public class Json2QuteSpell extends Json2QuteCommon {
@@ -76,6 +78,9 @@ public class Json2QuteSpell extends Json2QuteCommon {
                 getSavingThrows(),
                 spellDuration(),
                 referenceLinks,
+                getDamageInfo(),
+                getAreaOfEffect(),
+                getSavingThrowSucceeds(),
                 getFluffImages(Tools5eIndexType.spellFluff),
                 String.join("\n", text),
                 tags);
@@ -170,6 +175,149 @@ public class Json2QuteSpell extends Json2QuteCommon {
             result.add(uppercaseFirst(saveType.toLowerCase()));
         }
         return result;
+    }
+
+    QuteDamage getDamageInfo() {
+        String baseDamage = extractBaseDamage();
+        String scaling = extractScalingDamage();
+
+        // Return null if no damage information is found
+        if (baseDamage == null && scaling == null) {
+            return null;
+        }
+
+        return new QuteDamage(baseDamage, scaling);
+    }
+
+    private String extractBaseDamage() {
+        // Look for damage dice patterns in the main spell text
+        List<String> text = new ArrayList<>();
+        appendToText(text, rootNode, null);
+        String spellText = String.join(" ", text);
+
+        // Simple regex to find damage dice notation (e.g., "8d6", "2d10+5")
+        String damagePattern = "\\b(\\d+d\\d+(?:[+\\-]\\d+)?)\\b";
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(damagePattern);
+        java.util.regex.Matcher matcher = pattern.matcher(spellText);
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+
+        return null;
+    }
+
+    private String extractScalingDamage() {
+        // Look for scaling information in entriesHigherLevel
+        if (SpellFields.entriesHigherLevel.existsIn(rootNode)) {
+            List<String> higherLevelText = new ArrayList<>();
+            appendToText(higherLevelText, SpellFields.entriesHigherLevel.getFrom(rootNode), null);
+            String scaling = String.join(" ", higherLevelText);
+
+            // Clean up the text and extract just the scaling description
+            if (!scaling.isEmpty()) {
+                // Remove "At Higher Levels" header if present
+                scaling = scaling.replaceFirst("(?i)^\\s*at higher levels[.:]*\\s*", "");
+                return scaling.trim();
+            }
+        }
+
+        return null;
+    }
+
+    QuteAreaOfEffect getAreaOfEffect() {
+        // Check if this spell has an area effect in the range field
+        JsonNode range = SpellFields.range.getFrom(rootNode);
+        if (range != null) {
+            String type = SpellFields.type.getTextOrEmpty(range);
+
+            // For area spells, the type might be "cone", "sphere", etc.
+            if (isAreaOfEffectType(type)) {
+                JsonNode distance = SpellFields.distance.getFrom(range);
+                String amountStr = SpellFields.amount.getTextOrEmpty(distance);
+
+                try {
+                    Integer size = Integer.valueOf(amountStr);
+                    return new QuteAreaOfEffect(type, size);
+                } catch (NumberFormatException e) {
+                    // If amount is not a number, still return the shape
+                    return new QuteAreaOfEffect(type, null);
+                }
+            }
+        }
+
+        // Also check if there's area information in the spell text
+        List<String> text = new ArrayList<>();
+        appendToText(text, rootNode, null);
+        String spellText = String.join(" ", text);
+
+        // Look for area descriptions in text (e.g., "20-foot radius", "30-foot cone")
+        String areaPattern = "(\\d+)[-\\s]*foot[-\\s]*(radius|cone|line|cube|sphere|cylinder)";
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(areaPattern,
+                java.util.regex.Pattern.CASE_INSENSITIVE);
+        java.util.regex.Matcher matcher = pattern.matcher(spellText);
+
+        if (matcher.find()) {
+            try {
+                Integer size = Integer.valueOf(matcher.group(1));
+                String shape = matcher.group(2).toLowerCase();
+                // Normalize "radius" to "sphere"
+                if ("radius".equals(shape)) {
+                    shape = "sphere";
+                }
+                return new QuteAreaOfEffect(shape, size);
+            } catch (NumberFormatException e) {
+                // Ignore parsing errors
+            }
+        }
+
+        return null;
+    }
+
+    private boolean isAreaOfEffectType(String type) {
+        return type != null && ("cone".equals(type) ||
+                "sphere".equals(type) ||
+                "line".equals(type) ||
+                "cube".equals(type) ||
+                "cylinder".equals(type) ||
+                "emanation".equals(type) ||
+                "hemisphere".equals(type) ||
+                "radius".equals(type));
+    }
+
+    String getSavingThrowSucceeds() {
+        // Look for saving throw outcomes in the spell text
+        List<String> text = new ArrayList<>();
+        appendToText(text, rootNode, null);
+        String spellText = String.join(" ", text).toLowerCase();
+
+        // Common patterns for saving throw outcomes
+        if (spellText.contains("half as much damage on a successful") ||
+                spellText.contains("half damage on a success")) {
+            return "half damage";
+        }
+
+        if (spellText.contains("no damage on a successful") ||
+                spellText.contains("takes no damage on a success")) {
+            return "no damage";
+        }
+
+        if (spellText.contains("reduced effect on a successful") ||
+                spellText.contains("lesser effect on a success")) {
+            return "reduced effect";
+        }
+
+        if (spellText.contains("avoids the effect on a successful") ||
+                spellText.contains("is unaffected on a success")) {
+            return "no effect";
+        }
+
+        // If we have saving throws but can't determine the outcome, return generic text
+        if (!getSavingThrows().isEmpty()) {
+            return "see spell description";
+        }
+
+        return null;
     }
 
     String spellDuration() {
