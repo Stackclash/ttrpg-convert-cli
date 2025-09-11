@@ -20,6 +20,8 @@ aliases:
 {#if resource.damage}
 **Damage:** {resource.damage.baseDamage}{#if resource.damage.scaling}  
 **At Higher Levels:** {resource.damage.scaling}{/if}
+{#if resource.damage.scalingLevel && resource.damage.scalingDamage}  
+**Scaling:** At {resource.damage.scalingLevel}{#if resource.damage.scalingLevel == 1}st{#elseif resource.damage.scalingLevel == 2}nd{#elseif resource.damage.scalingLevel == 3}rd{#else}th{/if} level or higher, +{resource.damage.scalingDamage} per level{/if}
 {/if}
 
 {#if resource.areaOfEffect}

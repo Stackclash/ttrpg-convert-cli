@@ -12,28 +12,37 @@ class QuteSpellExtensionsTest {
     @Test
     void testQuteDamageCreation() {
         QuteDamage damage = new QuteDamage("8d6",
-                "When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for each slot level above 3rd.");
+                "When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for each slot level above 3rd.",
+                4, "1d6");
 
         assertNotNull(damage);
         assertEquals("8d6", damage.baseDamage);
         assertEquals(
                 "When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for each slot level above 3rd.",
                 damage.scaling);
+        assertEquals(4, damage.scalingLevel);
+        assertEquals("1d6", damage.scalingDamage);
     }
 
     @Test
     void testQuteDamageWithNullValues() {
-        QuteDamage damage1 = new QuteDamage(null, "scaling info");
+        QuteDamage damage1 = new QuteDamage(null, "scaling info", null, null);
         assertNull(damage1.baseDamage);
         assertEquals("scaling info", damage1.scaling);
+        assertNull(damage1.scalingLevel);
+        assertNull(damage1.scalingDamage);
 
-        QuteDamage damage2 = new QuteDamage("2d8", null);
+        QuteDamage damage2 = new QuteDamage("2d8", null, 3, "1d8");
         assertEquals("2d8", damage2.baseDamage);
         assertNull(damage2.scaling);
+        assertEquals(3, damage2.scalingLevel);
+        assertEquals("1d8", damage2.scalingDamage);
 
-        QuteDamage damage3 = new QuteDamage(null, null);
+        QuteDamage damage3 = new QuteDamage(null, null, null, null);
         assertNull(damage3.baseDamage);
         assertNull(damage3.scaling);
+        assertNull(damage3.scalingLevel);
+        assertNull(damage3.scalingDamage);
     }
 
     @Test
@@ -78,9 +87,11 @@ class QuteSpellExtensionsTest {
         };
 
         for (String pattern : damagePatterns) {
-            QuteDamage damage = new QuteDamage(pattern, "some scaling");
+            QuteDamage damage = new QuteDamage(pattern, "some scaling", 4, "1d6");
             assertEquals(pattern, damage.baseDamage);
             assertEquals("some scaling", damage.scaling);
+            assertEquals(4, damage.scalingLevel);
+            assertEquals("1d6", damage.scalingDamage);
         }
     }
 
@@ -94,6 +105,45 @@ class QuteSpellExtensionsTest {
         for (String outcome : outcomes) {
             assertNotNull(outcome);
             assertFalse(outcome.isEmpty());
+        }
+    }
+
+    @Test
+    void testQuteDamageScalingFields() {
+        // Test with both scaling level and damage
+        QuteDamage damage1 = new QuteDamage("6d6",
+                "When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for each slot level above 3rd.",
+                4, "1d6");
+        assertEquals(4, damage1.scalingLevel);
+        assertEquals("1d6", damage1.scalingDamage);
+
+        // Test with different scaling values
+        QuteDamage damage2 = new QuteDamage("3d8",
+                "At 3rd level or higher, increases by 2d8 per level",
+                3, "2d8");
+        assertEquals(3, damage2.scalingLevel);
+        assertEquals("2d8", damage2.scalingDamage);
+
+        // Test with null scaling values
+        QuteDamage damage3 = new QuteDamage("5d4", "No scaling", null, null);
+        assertNull(damage3.scalingLevel);
+        assertNull(damage3.scalingDamage);
+    }
+
+    @Test
+    void testQuteDamageCalculationReady() {
+        // Test that the new fields support calculation logic
+        QuteDamage damage = new QuteDamage("8d6",
+                "When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for each slot level above 3rd.",
+                4, "1d6");
+
+        // Example calculation: cast at 6th level
+        int castLevel = 6;
+        if (damage.scalingLevel != null && castLevel >= damage.scalingLevel) {
+            int levelsAboveBase = castLevel - (damage.scalingLevel - 1); // 6 - 3 = 3 extra dice
+            // Template could use: baseDamage + (levelsAboveBase * scalingDamage)
+            // This would be: 8d6 + 3 * 1d6 = 11d6
+            assertTrue(levelsAboveBase > 0);
         }
     }
 }

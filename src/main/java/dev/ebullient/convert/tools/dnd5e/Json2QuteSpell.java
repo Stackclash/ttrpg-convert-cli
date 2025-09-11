@@ -180,13 +180,15 @@ public class Json2QuteSpell extends Json2QuteCommon {
     QuteDamage getDamageInfo() {
         String baseDamage = extractBaseDamage();
         String scaling = extractScalingDamage();
+        Integer scalingLevel = extractScalingLevel();
+        String scalingDamage = extractScalingDamagePerLevel();
 
         // Return null if no damage information is found
-        if (baseDamage == null && scaling == null) {
+        if (baseDamage == null && scaling == null && scalingLevel == null && scalingDamage == null) {
             return null;
         }
 
-        return new QuteDamage(baseDamage, scaling);
+        return new QuteDamage(baseDamage, scaling, scalingLevel, scalingDamage);
     }
 
     private String extractBaseDamage() {
@@ -219,6 +221,52 @@ public class Json2QuteSpell extends Json2QuteCommon {
                 // Remove "At Higher Levels" header if present
                 scaling = scaling.replaceFirst("(?i)^\\s*at higher levels[.:]*\\s*", "");
                 return scaling.trim();
+            }
+        }
+
+        return null;
+    }
+
+    private Integer extractScalingLevel() {
+        // Look for scaling level information in entriesHigherLevel
+        if (SpellFields.entriesHigherLevel.existsIn(rootNode)) {
+            List<String> higherLevelText = new ArrayList<>();
+            appendToText(higherLevelText, SpellFields.entriesHigherLevel.getFrom(rootNode), null);
+            String scaling = String.join(" ", higherLevelText);
+
+            // Look for patterns like "4th level or higher", "3rd level or higher", etc.
+            String levelPattern = "\\b(\\d+)(?:st|nd|rd|th)\\s+level\\s+or\\s+higher";
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(levelPattern,
+                    java.util.regex.Pattern.CASE_INSENSITIVE);
+            java.util.regex.Matcher matcher = pattern.matcher(scaling);
+
+            if (matcher.find()) {
+                try {
+                    return Integer.valueOf(matcher.group(1));
+                } catch (NumberFormatException e) {
+                    // Ignore parsing errors
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private String extractScalingDamagePerLevel() {
+        // Look for damage increase per level in entriesHigherLevel
+        if (SpellFields.entriesHigherLevel.existsIn(rootNode)) {
+            List<String> higherLevelText = new ArrayList<>();
+            appendToText(higherLevelText, SpellFields.entriesHigherLevel.getFrom(rootNode), null);
+            String scaling = String.join(" ", higherLevelText);
+
+            // Look for patterns like "increases by 1d6 for each", "increases by 2d8 for each", etc.
+            String damagePattern = "increases\\s+by\\s+(\\d+d\\d+(?:[+\\-]\\d+)?)\\s+for\\s+each";
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(damagePattern,
+                    java.util.regex.Pattern.CASE_INSENSITIVE);
+            java.util.regex.Matcher matcher = pattern.matcher(scaling);
+
+            if (matcher.find()) {
+                return matcher.group(1);
             }
         }
 

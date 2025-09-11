@@ -133,10 +133,16 @@ public class QuteSpell extends Tools5eQuteBase {
         public final String baseDamage;
         /** Description of how damage scales at higher levels */
         public final String scaling;
+        /** The spell level where scaling starts (e.g., 4 for "4th level or higher") */
+        public final Integer scalingLevel;
+        /** Dice notation for damage increase per level (e.g., "1d6") */
+        public final String scalingDamage;
 
-        public QuteDamage(String baseDamage, String scaling) {
+        public QuteDamage(String baseDamage, String scaling, Integer scalingLevel, String scalingDamage) {
             this.baseDamage = baseDamage;
             this.scaling = scaling;
+            this.scalingLevel = scalingLevel;
+            this.scalingDamage = scalingDamage;
         }
     }
 
