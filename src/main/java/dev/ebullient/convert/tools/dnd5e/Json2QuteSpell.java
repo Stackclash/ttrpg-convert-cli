@@ -218,8 +218,9 @@ public class Json2QuteSpell extends Json2QuteCommon {
 
             // Clean up the text and extract just the scaling description
             if (!scaling.isEmpty()) {
-                // Remove "At Higher Levels" header if present
-                scaling = scaling.replaceFirst("(?i)^\\s*at higher levels[.:]*\\s*", "");
+                // Remove "At Higher Levels" header if present, including markdown formatting
+                scaling = scaling.replaceFirst(
+                        "(?i)^\\s*\\*\\*at\\s+higher\\s+levels\\.?\\*\\*\\s*|^\\s*at\\s+higher\\s+levels[.:]*\\s*", "");
                 return scaling.trim();
             }
         }
@@ -259,14 +260,30 @@ public class Json2QuteSpell extends Json2QuteCommon {
             appendToText(higherLevelText, SpellFields.entriesHigherLevel.getFrom(rootNode), null);
             String scaling = String.join(" ", higherLevelText);
 
-            // Look for patterns like "increases by 1d6 for each", "increases by 2d8 for each", etc.
-            String damagePattern = "increases\\s+by\\s+(\\d+d\\d+(?:[+\\-]\\d+)?)\\s+for\\s+each";
-            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(damagePattern,
-                    java.util.regex.Pattern.CASE_INSENSITIVE);
-            java.util.regex.Matcher matcher = pattern.matcher(scaling);
+            // Try multiple patterns to find damage scaling
+            String[] patterns = {
+                    // "increases by 1d6 for each"
+                    "increases\\s+by\\s+(\\d+d\\d+(?:[+\\-]\\d+)?)\\s+for\\s+each",
+                    // "additional 1d8 damage for each"
+                    "additional\\s+(\\d+d\\d+(?:[+\\-]\\d+)?)\\s+damage\\s+for\\s+each",
+                    // "increases by 1d10 per spell slot"
+                    "increases\\s+by\\s+(\\d+d\\d+(?:[+\\-]\\d+)?)\\s+per\\s+(?:spell\\s+)?slot",
+                    // "1d6 for each slot level"
+                    "(\\d+d\\d+(?:[+\\-]\\d+)?)\\s+for\\s+each\\s+(?:slot\\s+)?level",
+                    // "1d8 damage for each"
+                    "(\\d+d\\d+(?:[+\\-]\\d+)?)\\s+damage\\s+for\\s+each",
+                    // "increases by 1d6"
+                    "increases\\s+by\\s+(\\d+d\\d+(?:[+\\-]\\d+)?)"
+            };
 
-            if (matcher.find()) {
-                return matcher.group(1);
+            for (String patternStr : patterns) {
+                java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(patternStr,
+                        java.util.regex.Pattern.CASE_INSENSITIVE);
+                java.util.regex.Matcher matcher = pattern.matcher(scaling);
+
+                if (matcher.find()) {
+                    return matcher.group(1);
+                }
             }
         }
 

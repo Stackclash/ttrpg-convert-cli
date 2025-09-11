@@ -146,4 +146,51 @@ class QuteSpellExtensionsTest {
             assertTrue(levelsAboveBase > 0);
         }
     }
+
+    @Test
+    void testMarkdownFormattingRemoval() {
+        // Test markdown removal with regex patterns directly since the actual parsing
+        // happens in Json2QuteSpell, not in the constructor
+        String[] testTexts = {
+                "**At Higher Levels.** When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for each slot level above 3rd.",
+                "At Higher Levels: When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d8 for each slot level above 1st.",
+                "At higher levels. The damage increases by 2d6 for each slot level above 1st."
+        };
+
+        String pattern = "(?i)^\\s*\\*\\*at\\s+higher\\s+levels\\.?\\*\\*\\s*|^\\s*at\\s+higher\\s+levels[.:]*\\s*";
+
+        for (String text : testTexts) {
+            String cleaned = text.replaceFirst(pattern, "");
+            assertFalse(cleaned.toLowerCase().startsWith("**at higher levels"),
+                    "Text should not start with markdown formatted 'At Higher Levels': " + cleaned);
+            assertFalse(cleaned.toLowerCase().startsWith("at higher levels"),
+                    "Text should not start with 'At Higher Levels': " + cleaned);
+            assertTrue(cleaned.toLowerCase().startsWith("when") || cleaned.toLowerCase().startsWith("the"),
+                    "Text should start with actual content: " + cleaned);
+        }
+    }
+
+    @Test
+    void testVariousScalingDamagePatterns() {
+        // Test that various damage scaling patterns can be stored correctly
+        // (The actual parsing happens in Json2QuteSpell)
+
+        // Test 1: Standard pattern
+        QuteDamage damage1 = new QuteDamage("8d6",
+                "When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for each slot level above 3rd.",
+                4, "1d6");
+        assertEquals("1d6", damage1.scalingDamage);
+
+        // Test 2: Different pattern
+        QuteDamage damage2 = new QuteDamage("3d8",
+                "At 2nd level and higher, the spell deals an additional 1d8 damage for each slot level above 1st.",
+                2, "1d8");
+        assertEquals("1d8", damage2.scalingDamage);
+
+        // Test 3: Another pattern
+        QuteDamage damage3 = new QuteDamage("2d10",
+                "The damage increases by 1d10 per spell slot level above 3rd.",
+                4, "1d10");
+        assertEquals("1d10", damage3.scalingDamage);
+    }
 }
