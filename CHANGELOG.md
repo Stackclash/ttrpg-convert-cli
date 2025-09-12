@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/Stackclash/ttrpg-convert-cli/compare/1.1.0...1.2.0) (2025-09-12)
+
+
+### Features
+
+* extend QuteSpell with additional data variables for damage, area of effect, and saving throw outcomes ([#16](https://github.com/Stackclash/ttrpg-convert-cli/issues/16)) ([352f99e](https://github.com/Stackclash/ttrpg-convert-cli/commit/352f99e99bbb51f7532f22143be3292947d1b744))
+
 ## [1.1.0](https://github.com/Stackclash/ttrpg-convert-cli/compare/1.0.0...1.1.0) (2025-09-04)
 
 
