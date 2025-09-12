@@ -53,12 +53,19 @@ public class QuteSpell extends Tools5eQuteBase {
     public final String races;
     /** List of links to resources (classes, subclasses, feats, etc.) that have access to this spell */
     public final Collection<String> references;
+    /** Damage information including base damage and scaling */
+    public final QuteDamage damage;
+    /** Area of effect information including shape and size */
+    public final QuteAreaOfEffect areaOfEffect;
+    /** What happens on a successful saving throw (e.g., "half damage", "no damage") */
+    public final String savingThrowSucceeds;
 
     public QuteSpell(Tools5eSources sources, String name, String source, String level,
             String school, boolean ritual, String time, String range,
             String components, boolean verbal, boolean somatic, String material,
             List<String> damageType, List<String> savingThrows, String duration,
-            Collection<String> references, List<ImageRef> images, String text, Tags tags) {
+            Collection<String> references, QuteDamage damage, QuteAreaOfEffect areaOfEffect,
+            String savingThrowSucceeds, List<ImageRef> images, String text, Tags tags) {
         super(sources, name, source, images, text, tags);
 
         this.level = level;
@@ -74,6 +81,9 @@ public class QuteSpell extends Tools5eQuteBase {
         this.savingThrows = savingThrows != null ? List.copyOf(savingThrows) : List.of();
         this.duration = duration;
         this.references = references;
+        this.damage = damage;
+        this.areaOfEffect = areaOfEffect;
+        this.savingThrowSucceeds = savingThrowSucceeds;
         this.backgrounds = references.stream()
                 .filter(s -> s.contains("background"))
                 .distinct()
@@ -112,5 +122,43 @@ public class QuteSpell extends Tools5eQuteBase {
                         .distinct()
                         .sorted()
                         .toList();
+    }
+
+    /**
+     * Damage information for the spell including base damage and scaling.
+     */
+    @TemplateData
+    public static class QuteDamage {
+        /** Base damage dice notation (e.g., "8d6") */
+        public final String baseDamage;
+        /** Description of how damage scales at higher levels */
+        public final String scaling;
+        /** The spell level where scaling starts (e.g., 4 for "4th level or higher") */
+        public final Integer scalingLevel;
+        /** Dice notation for damage increase per level (e.g., "1d6") */
+        public final String scalingDamage;
+
+        public QuteDamage(String baseDamage, String scaling, Integer scalingLevel, String scalingDamage) {
+            this.baseDamage = baseDamage;
+            this.scaling = scaling;
+            this.scalingLevel = scalingLevel;
+            this.scalingDamage = scalingDamage;
+        }
+    }
+
+    /**
+     * Area of effect information for the spell.
+     */
+    @TemplateData
+    public static class QuteAreaOfEffect {
+        /** Shape of the area of effect (e.g., "sphere", "cone", "line", "cube") */
+        public final String shape;
+        /** Size of the area in feet */
+        public final Integer size;
+
+        public QuteAreaOfEffect(String shape, Integer size) {
+            this.shape = shape;
+            this.size = size;
+        }
     }
 }
