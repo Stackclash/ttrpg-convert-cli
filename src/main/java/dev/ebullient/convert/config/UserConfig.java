@@ -105,6 +105,38 @@ public class UserConfig {
     static class VaultPaths {
         String compendium;
         String rules;
+
+        // Per-compendium-type paths for fine-grained control
+        String adventures;
+        String backgrounds;
+        String books;
+        String classes;
+        String subclasses;
+        String conditions;
+        String decks;
+        String deities;
+        String facilities;
+        String feats;
+        String items;
+        String monsters;
+        String races;
+        String subraces;
+        String spells;
+        String tables;
+        String variantRules;
+
+        // Pathfinder 2e specific types
+        String actions;
+        String ancestries;
+        String archetypes;
+        String afflictions;
+        String creatures;
+        String hazards;
+        String rituals;
+        String traits;
+        String vehicles;
+        String equipment;
+        String relics;
     }
 
     @RegisterForReflection

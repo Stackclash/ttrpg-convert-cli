@@ -63,10 +63,94 @@
     "paths" : {
       "type" : "object",
       "properties" : {
+        "actions" : {
+          "type" : "string"
+        },
+        "adventures" : {
+          "type" : "string"
+        },
+        "afflictions" : {
+          "type" : "string"
+        },
+        "ancestries" : {
+          "type" : "string"
+        },
+        "archetypes" : {
+          "type" : "string"
+        },
+        "backgrounds" : {
+          "type" : "string"
+        },
+        "books" : {
+          "type" : "string"
+        },
+        "classes" : {
+          "type" : "string"
+        },
         "compendium" : {
           "type" : "string"
         },
+        "conditions" : {
+          "type" : "string"
+        },
+        "creatures" : {
+          "type" : "string"
+        },
+        "decks" : {
+          "type" : "string"
+        },
+        "deities" : {
+          "type" : "string"
+        },
+        "equipment" : {
+          "type" : "string"
+        },
+        "facilities" : {
+          "type" : "string"
+        },
+        "feats" : {
+          "type" : "string"
+        },
+        "hazards" : {
+          "type" : "string"
+        },
+        "items" : {
+          "type" : "string"
+        },
+        "monsters" : {
+          "type" : "string"
+        },
+        "races" : {
+          "type" : "string"
+        },
+        "relics" : {
+          "type" : "string"
+        },
+        "rituals" : {
+          "type" : "string"
+        },
         "rules" : {
+          "type" : "string"
+        },
+        "spells" : {
+          "type" : "string"
+        },
+        "subclasses" : {
+          "type" : "string"
+        },
+        "subraces" : {
+          "type" : "string"
+        },
+        "tables" : {
+          "type" : "string"
+        },
+        "traits" : {
+          "type" : "string"
+        },
+        "variantRules" : {
+          "type" : "string"
+        },
+        "vehicles" : {
           "type" : "string"
         }
       }

@@ -84,6 +84,11 @@ public class Json2QuteCommon implements JsonSource {
     }
 
     @Override
+    public Tools5eIndexType getIndexType() {
+        return type;
+    }
+
+    @Override
     public String getImagePath() {
         if (imagePath != null) {
             return imagePath;
@@ -786,7 +791,7 @@ public class Json2QuteCommon implements JsonSource {
         Path targetFile = Path.of(targetDir,
                 linkifier().getTargetFileName(slugify(filename), getSources()) + ext);
 
-        return getSources().buildTokenImageRef(index, sourcePath, targetFile, true);
+        return getSources().buildTokenImageRef(index, type, sourcePath, targetFile, true);
     }
 
     String collectImmunities(JsonNode fromNode, VulnerabilityFields field) {

@@ -4,6 +4,7 @@ import static dev.ebullient.convert.StringUtil.toAnchorTag;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import dev.ebullient.convert.config.CompendiumConfig;
 import dev.ebullient.convert.config.TtrpgConfig;
 import dev.ebullient.convert.io.Tui;
 import dev.ebullient.convert.tools.JsonTextConverter.SourceField;
@@ -44,9 +45,63 @@ public class Tools5eLinkifier {
     }
 
     public String vaultRoot(Tools5eIndexType type) {
+        // Check for custom path first
+        CompendiumConfig config = TtrpgConfig.getConfig();
+        if (config != null) {
+            String pathKey = getPathKeyForType(type);
+            if (pathKey != null) {
+                String customVaultPath = config.getTypeSpecificVaultPath(pathKey);
+                if (customVaultPath != null) {
+                    return customVaultPath;
+                }
+            }
+        }
+
+        // Fall back to default behavior
         return type.useCompendiumBase()
                 ? index.compendiumVaultRoot()
                 : index.rulesVaultRoot();
+    }
+
+    private String getPathKeyForType(Tools5eIndexType type) {
+        return switch (type) {
+            case adventureData -> "adventures";
+            case background -> "backgrounds";
+            case bookData -> "books";
+            case classtype -> "classes";
+            case subclass -> getSubclassPathKey();
+            case condition, status -> "conditions";
+            case card, deck -> "decks";
+            case deity -> "deities";
+            case facility -> "facilities";
+            case feat -> "feats";
+            case item, itemGroup, magicvariant -> "items";
+            case monster, legendaryGroup -> "monsters";
+            case race -> "races";
+            case subrace -> getSubracePathKey();
+            case spell -> "spells";
+            case table, tableGroup -> "tables";
+            case variantrule -> "variantRules";
+            default -> null;
+        };
+    }
+
+    private String getSubclassPathKey() {
+        CompendiumConfig config = TtrpgConfig.getConfig();
+        if (config != null && config.getTypeSpecificVaultPath("subclasses") != null) {
+            return "subclasses";
+        }
+        // Fall back to classes path if no specific subclasses path is configured
+        return "classes";
+    }
+
+    private String getSubracePathKey() {
+        CompendiumConfig config = TtrpgConfig.getConfig();
+        if (config != null && config.getTypeSpecificVaultPath("subraces") != null) {
+            return "subraces";
+        }
+        // Fall back to races path if no specific subraces path is configured
+        return "races";
     }
 
     public String getRelativePath(Tools5eSources sources) {
@@ -54,6 +109,13 @@ public class Tools5eLinkifier {
     }
 
     public String getRelativePath(Tools5eIndexType type) {
+        // Check if there's a custom path configured for this type
+        String customPath = getCustomRelativePath(type);
+        if (customPath != null) {
+            return customPath;
+        }
+
+        // Fall back to default hardcoded paths
         return switch (type) {
             case adventureData -> "adventures";
             case bookData -> "books";
@@ -77,6 +139,26 @@ public class Tools5eLinkifier {
             case variantrule -> "variant-rules";
             default -> type.name() + 's';
         };
+    }
+
+    private String getCustomRelativePath(Tools5eIndexType type) {
+        CompendiumConfig config = TtrpgConfig.getConfig();
+        if (config == null) {
+            return null;
+        }
+
+        String pathKey = getPathKeyForType(type);
+        if (pathKey == null) {
+            return null;
+        }
+
+        String customVaultPath = config.getTypeSpecificVaultPath(pathKey);
+        if (customVaultPath != null) {
+            // Remove leading and trailing slashes to return just the relative part
+            return customVaultPath.replaceAll("^/+|/+$", "");
+        }
+
+        return null;
     }
 
     public String getTargetFileName(String name, Tools5eSources sources) {

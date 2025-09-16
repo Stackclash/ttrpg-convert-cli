@@ -286,7 +286,7 @@ The `paths` key specifies vault path for generated content.
 - New directories are made if they aren't already present.
 - Paths are relative to the CLI's designated output location (`-o`), which correlates to the root of your Obsidian vault.
 
-**Example:**
+**Basic example:**
 
 ```json
   "paths": {
@@ -302,6 +302,106 @@ The `paths` key specifies vault path for generated content.
 
 - `compendium`: backgrounds, classes, items, spells, monsters, etc.
 - `rules`: conditions, weapon properties, variant rules, etc.
+
+### Per-compendium-type paths
+
+You can specify individual output paths for specific compendium types to organize content more granularly. When a specific path for a compendium type is configured, the generated markdown files and associated `img` and `token` image folders are placed at the specified path.
+
+**Example with per-type paths:**
+
+```json
+  "paths": {
+    "compendium": "/compendium/",
+    "rules": "/rules/",
+    "monsters": "/bestiary/",
+    "spells": "/magic/",
+    "items": "/equipment/",
+    "races": "/character/ancestry/"
+  }
+```
+
+**Available compendium types:**
+
+For **D&D 5th Edition:**
+- `adventures` - Adventure content
+- `backgrounds` - Character backgrounds  
+- `books` - Book content
+- `classes` - Character classes
+- `subclasses` - Character subclasses
+- `conditions` - Status conditions
+- `decks` - Card decks
+- `deities` - Deities and pantheons
+- `facilities` - Bastion facilities
+- `feats` - Character feats
+- `items` - Equipment and magic items
+- `monsters` - Bestiary creatures and legendary groups
+- `races` - Character races
+- `subraces` - Character subraces
+- `spells` - Spells and cantrips
+- `tables` - Reference tables
+- `variantRules` - Variant and optional rules
+
+For **Pathfinder 2nd Edition:**
+- `actions` - Character actions
+- `adventures` - Adventure content
+- `ancestries` - Character ancestries
+- `archetypes` - Character archetypes
+- `backgrounds` - Character backgrounds
+- `afflictions` - Diseases, curses, and afflictions
+- `classes` - Character classes
+- `creatures` - Bestiary creatures
+- `deities` - Deities and pantheons
+- `equipment` - Items and vehicles
+- `feats` - Character feats
+- `hazards` - Environmental hazards
+- `relics` - Relic gifts
+- `rituals` - Ritual spells
+- `spells` - Spells and cantrips
+- `tables` - Reference tables
+- `traits` - Rules traits
+- `variantRules` - Variant and optional rules
+
+**Behavior:**
+- If a specific compendium type path is provided, files of that type are written to the specified directory
+- If a compendium type path is not specified, files are written to the default compendium path (backward compatible)
+- For monster types, the entire folder structure (including subdirectories for monster types) is placed at the configured location
+- The configuration prevents unwanted nested folders (e.g., specifying a path for `items` won't result in files being placed in `items/items`)
+- **Subrace and Subclass Fallback:** If `subraces` or `subclasses` paths are not configured, they fall back to using the `races` and `classes` paths respectively, maintaining backward compatibility with existing configurations
+
+**Mixed configuration example:**
+
+```json
+  "paths": {
+    "compendium": "/default/",
+    "monsters": "/bestiary/",
+    "spells": "/spellbook/"
+  }
+```
+
+In this example:
+- Monsters go to `/bestiary/`
+- Spells go to `/spellbook/`
+- All other compendium content (items, races, backgrounds, etc.) goes to `/default/`
+- Rules content still uses the default rules path
+
+**Subrace and Subclass organization example:**
+
+```json
+  "paths": {
+    "compendium": "/compendium/",
+    "races": "/character/races/",
+    "subraces": "/character/subraces/",
+    "classes": "/character/classes/",
+    "subclasses": "/character/subclasses/"
+  }
+```
+
+In this example:
+- Races go to `/character/races/`
+- Subraces go to `/character/subraces/` (separate from races)
+- Classes go to `/character/classes/`
+- Subclasses go to `/character/subclasses/` (separate from classes)
+- All other content goes to `/compendium/`
 
 > [!WARNING]
 > Do not reorganize or edit the generated content. Tuck generated content away in your vault and use it as read-only reference material. It should be cheap and easy to re-run the tool (add more content, errata, etc.). See [Recommendations](../README.md#recommendations-for-using-the-cli) for more information.

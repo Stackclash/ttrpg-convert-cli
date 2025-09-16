@@ -102,7 +102,15 @@ public interface JsonSource extends JsonTextReplacement {
     }
 
     default ImageRef buildImageRef(JsonMediaHref mediaHref, String imageBasePath) {
+        Tools5eIndexType type = getIndexType();
+        if (type != null) {
+            return getSources().buildImageRef(index(), type, mediaHref, imageBasePath, useCompendium());
+        }
         return getSources().buildImageRef(index(), mediaHref, imageBasePath, useCompendium());
+    }
+
+    default Tools5eIndexType getIndexType() {
+        return null; // Default implementation returns null - subclasses can override
     }
 
     default String getFileName() {
